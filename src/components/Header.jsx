@@ -92,6 +92,16 @@ function Header() {
             >
               BLOG
             </Link>
+            <Link 
+              to="/video" 
+              className={`px-4 py-2.5 rounded-xl font-semibold text-sm transition-all ${
+                isActive('/video') 
+                  ? 'bg-white/20 text-white shadow-md backdrop-blur-sm' 
+                  : 'text-white/90 hover:bg-white/10 hover:text-white'
+              }`}
+            >
+              CREATE VIDEO
+            </Link>
           </nav>
 
           {/* Desktop: Let's Talk Button */}
@@ -186,6 +196,17 @@ function Header() {
                 }`}
               >
                 BLOG
+              </Link>
+              <Link 
+                to="/video" 
+                onClick={() => setShowMenu(false)}
+                className={`px-4 py-3 rounded-xl font-semibold text-sm transition-all ${
+                  isActive('/video') 
+                    ? 'bg-white/20 text-white' 
+                    : 'text-white/90 hover:bg-white/10 hover:text-white'
+                }`}
+              >
+                CREATE VIDEO
               </Link>
               <div className="pt-4 mt-4 border-t border-white/20">
                 <button 
