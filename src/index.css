@@ -1,0 +1,150 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+/* Primary Color Palette - Tailwind v4 CSS Variables */
+@theme {
+  --color-primary-50: #e6f7fd;
+  --color-primary-100: #b3e8f9;
+  --color-primary-200: #80d9f5;
+  --color-primary-300: #4dcaf1;
+  --color-primary-400: #1abbed;
+  --color-primary-500: #12b0df;
+  --color-primary-600: #0e8bb3;
+  --color-primary-700: #0a6787;
+  --color-primary-800: #06435b;
+  --color-primary-900: #021f2f;
+}
+
+/* Custom Animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.8s ease-out;
+  will-change: opacity, transform;
+}
+
+.animate-slide-in-left {
+  animation: slide-in-left 0.8s ease-out;
+  will-change: opacity, transform;
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.8s ease-out;
+  will-change: opacity, transform;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* Prevent animation glitches on load */
+@keyframes fade-in-smooth {
+  from {
+    opacity: 0;
+    transform: translateY(20px) translateZ(0);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) translateZ(0);
+  }
+}
+
+/* Optimize banner rendering */
+.banner-container {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* PPI-aware font size adjustments */
+@media screen and (max-width: 640px) {
+  /* Base font size for mobile devices */
+  html {
+    font-size: 16px;
+  }
+  
+  /* Standard resolution devices (1x - ~150 DPI) */
+  @media (-webkit-min-device-pixel-ratio: 1), (min-resolution: 96dpi) {
+    html {
+      font-size: 16px;
+    }
+  }
+  
+  /* Retina/High-DPI devices (2x - ~300 DPI) - slightly smaller to compensate */
+  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    html {
+      font-size: 15px;
+    }
+  }
+  
+  /* Extra high resolution devices (3x - ~450+ DPI like S23 Ultra) - smaller still */
+  @media (-webkit-min-device-pixel-ratio: 3), (min-resolution: 288dpi) {
+    html {
+      font-size: 14px;
+    }
+  }
+  
+  /* Ultra high resolution devices (4x+ - ~600+ DPI) */
+  @media (-webkit-min-device-pixel-ratio: 4), (min-resolution: 384dpi) {
+    html {
+      font-size: 13px;
+    }
+  }
+}
+
+/* Ensure minimum font sizes for readability */
+@media screen and (max-width: 640px) {
+  body {
+    min-font-size: 12px;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+}
+
+/* Desktop - keep standard sizes */
+@media screen and (min-width: 641px) {
+  html {
+    font-size: 16px;
+  }
+}
