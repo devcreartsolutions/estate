@@ -100,7 +100,7 @@ function Header() {
                   : 'text-white/90 hover:bg-white/10 hover:text-white'
               }`}
             >
-              MAKE VIDEO
+              VIDEO
             </Link>
           </nav>
 
@@ -206,7 +206,7 @@ function Header() {
                     : 'text-white/90 hover:bg-white/10 hover:text-white'
                 }`}
               >
-                MAKE VIDEO
+                VIDEO
               </Link>
               <div className="pt-4 mt-4 border-t border-white/20">
                 <button 
