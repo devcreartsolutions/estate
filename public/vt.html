@@ -1,0 +1,1803 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Photo Sphere Viewer v5 - Static</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@photo-sphere-viewer/core@5.14.0/index.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@photo-sphere-viewer/gallery-plugin@5.14.0/index.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@photo-sphere-viewer/markers-plugin@5.14.0/index.css" />
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/@photo-sphere-viewer/virtual-tour-plugin@5.14.0/index.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@photo-sphere-viewer/autorotate-plugin@5.14.0/index.css" />
+  <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.159.0/build/three.module.js",
+          "@photo-sphere-viewer/core": "https://cdn.jsdelivr.net/npm/@photo-sphere-viewer/core@5.14.0/index.module.min.js",
+          "@photo-sphere-viewer/gallery-plugin": "https://cdn.jsdelivr.net/npm/@photo-sphere-viewer/gallery-plugin@5.14.0/index.module.min.js",
+          "@photo-sphere-viewer/markers-plugin": "https://cdn.jsdelivr.net/npm/@photo-sphere-viewer/markers-plugin@5.14.0/index.module.min.js",
+          "@photo-sphere-viewer/virtual-tour-plugin": "https://cdn.jsdelivr.net/npm/@photo-sphere-viewer/virtual-tour-plugin@5.14.0/index.module.min.js",
+          "@photo-sphere-viewer/autorotate-plugin": "https://cdn.jsdelivr.net/npm/@photo-sphere-viewer/autorotate-plugin@5.14.0/index.module.min.js"
+        }
+      }
+    </script>
+    <style>
+    html,
+    body {
+        height: 100%;
+        margin: 0;
+      }
+
+      #viewer {
+        width: 100%;
+        height: 100vh;
+        background: #000;
+      }
+
+    .vt-link-marker {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.85);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+      border: 2px solid rgba(0, 0, 0, 0.35);
+    }
+
+    /* Utility to color SVGs provided as mask with background-color */
+    .vt-mask-icon {
+      display: inline-block;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: contain;
+      -webkit-mask-repeat: no-repeat;
+      -webkit-mask-position: center;
+      -webkit-mask-size: contain;
+      mask-repeat: no-repeat;
+      mask-position: center;
+      mask-size: contain;
+    }
+
+    /* removed overlay arrows */
+    /* Marker layout helpers (do not override PSV visibility state) */
+    .psv-marker,
+    .psv-marker i {
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+    }
+
+    .psv-marker i {
+      font-size: 100px;
+    }
+
+    .vt-direction-marker-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+    }
+
+    .vt-direction-marker {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      color: var(--vt-marker-color, #00d0ff);
+      filter: drop-shadow(0 14px 20px rgba(15, 23, 42, 0.35));
+      border-radius: 50%;
+      animation-duration: 1.8s;
+      animation-iteration-count: infinite;
+      animation-timing-function: linear;
+      transition: transform .25s ease, filter .25s ease;
+      background: radial-gradient(circle at 50% 35%, rgba(255, 255, 255, .22), rgba(255, 255, 255, 0) 55%);
+      position: relative;
+      overflow: visible;
+    }
+
+    .vt-direction-marker svg {
+      width: 72%;
+      height: 72%;
+      fill: currentColor;
+      transition: transform .25s ease;
+      position: absolute;
+      left: 50%;
+    }
+
+    .vt-direction-marker .arrow-layer {
+      width: 72%;
+      height: 72%;
+      position: absolute;
+      pointer-events: none;
+    }
+
+    .vt-direction-marker .arrow-layer-1 {
+      opacity: 1;
+      z-index: 4;
+      top: 50%;
+      left: 50%;
+      animation: arrowWave1 2s linear infinite;
+      will-change: opacity;
+    }
+
+    .vt-direction-marker .arrow-layer-2 {
+      opacity: .75;
+      z-index: 3;
+      top: 50%;
+      left: 50%;
+      animation: arrowWave2 2s linear infinite;
+      will-change: opacity;
+    }
+
+    .vt-direction-marker .arrow-layer-3 {
+      opacity: .5;
+      z-index: 2;
+      top: 50%;
+      left: 50%;
+      animation: arrowWave3 2s linear infinite;
+      will-change: opacity;
+    }
+
+    .vt-direction-marker .arrow-layer-4 {
+      opacity: .3;
+      z-index: 1;
+      top: 50%;
+      left: 50%;
+      animation: arrowWave4 2s linear infinite;
+      will-change: opacity;
+    }
+
+    .vt-direction-marker--front .arrow-layer-1 {
+      transform: translate(-50%, calc(-50% - 50%))
+    }
+
+    .vt-direction-marker--front .arrow-layer-2 {
+      transform: translate(-50%, calc(-50% - 20%))
+    }
+
+    .vt-direction-marker--front .arrow-layer-3 {
+      transform: translate(-50%, calc(-50% + 10%))
+    }
+
+    .vt-direction-marker--front .arrow-layer-4 {
+      transform: translate(-50%, calc(-50% + 40%))
+    }
+
+    .vt-direction-marker--back .arrow-layer-1 {
+      transform: translate(-50%, calc(-50% + 50%))
+    }
+
+    .vt-direction-marker--back .arrow-layer-2 {
+      transform: translate(-50%, calc(-50% + 20%))
+    }
+
+    .vt-direction-marker--back .arrow-layer-3 {
+      transform: translate(-50%, calc(-50% - 10%))
+    }
+
+    .vt-direction-marker--back .arrow-layer-4 {
+      transform: translate(-50%, calc(-50% - 40%))
+    }
+
+    .vt-direction-marker--right .arrow-layer-1 {
+      transform: translate(calc(-50% + 50%), -50%)
+    }
+
+    .vt-direction-marker--right .arrow-layer-2 {
+      transform: translate(calc(-50% + 20%), -50%)
+    }
+
+    .vt-direction-marker--right .arrow-layer-3 {
+      transform: translate(calc(-50% - 10%), -50%)
+    }
+
+    .vt-direction-marker--right .arrow-layer-4 {
+      transform: translate(calc(-50% - 40%), -50%)
+    }
+
+    .vt-direction-marker--left .arrow-layer-1 {
+      transform: translate(calc(-50% - 50%), -50%)
+    }
+
+    .vt-direction-marker--left .arrow-layer-2 {
+      transform: translate(calc(-50% - 20%), -50%)
+    }
+
+    .vt-direction-marker--left .arrow-layer-3 {
+      transform: translate(calc(-50% + 10%), -50%)
+    }
+
+    .vt-direction-marker--left .arrow-layer-4 {
+      transform: translate(calc(-50% + 40%), -50%)
+    }
+
+    .vt-direction-marker--front_right .arrow-layer-1 {
+      transform: translate(calc(-50% + 35.4%), calc(-50% - 34%))
+    }
+
+    .vt-direction-marker--front_right .arrow-layer-2 {
+      transform: translate(calc(-50% + 14.1%), calc(-50% - 14.1%))
+    }
+
+    .vt-direction-marker--front_right .arrow-layer-3 {
+      transform: translate(calc(-50% - 7.1%), calc(-50% + 7.1%))
+    }
+
+    .vt-direction-marker--front_right .arrow-layer-4 {
+      transform: translate(calc(-50% - 28.3%), calc(-50% + 28.3%))
+    }
+
+    .vt-direction-marker--back_right .arrow-layer-1 {
+      transform: translate(calc(-50% + 35.4%), calc(-50% + 35.4%))
+    }
+
+    .vt-direction-marker--back_right .arrow-layer-2 {
+      transform: translate(calc(-50% + 14.1%), calc(-50% + 14.1%))
+    }
+
+    .vt-direction-marker--back_right .arrow-layer-3 {
+      transform: translate(calc(-50% - 7.1%), calc(-50% - 7.1%))
+    }
+
+    .vt-direction-marker--back_right .arrow-layer-4 {
+      transform: translate(calc(-50% - 28.3%), calc(-50% - 28.3%))
+    }
+
+    .vt-direction-marker--back_left .arrow-layer-1 {
+      transform: translate(calc(-50% - 35.4%), calc(-50% + 35.4%))
+    }
+
+    .vt-direction-marker--back_left .arrow-layer-2 {
+      transform: translate(calc(-50% - 14.1%), calc(-50% + 14.1%))
+    }
+
+    .vt-direction-marker--back_left .arrow-layer-3 {
+      transform: translate(calc(-50% + 7.1%), calc(-50% - 7.1%))
+    }
+
+    .vt-direction-marker--back_left .arrow-layer-4 {
+      transform: translate(calc(-50% + 28.3%), calc(-50% - 28.3%))
+    }
+
+    .vt-direction-marker--front_left .arrow-layer-1 {
+      transform: translate(calc(-50% - 35.4%), calc(-50% - 34%))
+    }
+
+    .vt-direction-marker--front_left .arrow-layer-2 {
+      transform: translate(calc(-50% - 14.1%), calc(-50% - 14.1%))
+    }
+
+    .vt-direction-marker--front_left .arrow-layer-3 {
+      transform: translate(calc(-50% + 7.1%), calc(-50% + 7.1%))
+    }
+
+    .vt-direction-marker--front_left .arrow-layer-4 {
+      transform: translate(calc(-50% + 28.3%), calc(-50% + 28.3%))
+    }
+
+    @keyframes arrowWave1 {
+      0% {
+        opacity: .7;
+        filter: brightness(.8) blur(.5px)
+      }
+
+      50% {
+        opacity: .7;
+        filter: brightness(.8) blur(.5px)
+      }
+
+      55% {
+        opacity: .85;
+        filter: brightness(.95) blur(.3px)
+      }
+
+      60% {
+        opacity: .95;
+        filter: brightness(1.05) blur(.1px)
+      }
+
+      65%,
+      70% {
+        opacity: 1;
+        filter: brightness(1.2) blur(0px)
+      }
+
+      75% {
+        opacity: .95;
+        filter: brightness(1.05) blur(.1px)
+      }
+
+      80% {
+        opacity: .85;
+        filter: brightness(.95) blur(.3px)
+      }
+
+      100% {
+        opacity: .7;
+        filter: brightness(.8) blur(.5px)
+      }
+    }
+
+    @keyframes arrowWave2 {
+      0% {
+        opacity: .5;
+        filter: brightness(.75) blur(.6px)
+      }
+
+      30% {
+        opacity: .5;
+        filter: brightness(.75) blur(.6px)
+      }
+
+      35% {
+        opacity: .65;
+        filter: brightness(.85) blur(.4px)
+      }
+
+      40% {
+        opacity: .8;
+        filter: brightness(.95) blur(.2px)
+      }
+
+      45%,
+      50% {
+        opacity: .9;
+        filter: brightness(1.15) blur(0px)
+      }
+
+      55% {
+        opacity: .8;
+        filter: brightness(.95) blur(.2px)
+      }
+
+      60% {
+        opacity: .65;
+        filter: brightness(.85) blur(.4px)
+      }
+
+      100% {
+        opacity: .5;
+        filter: brightness(.75) blur(.6px)
+      }
+    }
+
+    @keyframes arrowWave3 {
+      0% {
+        opacity: .3;
+        filter: brightness(.7) blur(.7px)
+      }
+
+      15% {
+        opacity: .3;
+        filter: brightness(.7) blur(.7px)
+      }
+
+      20% {
+        opacity: .35;
+        filter: brightness(.75) blur(.6px)
+      }
+
+      25% {
+        opacity: .45;
+        filter: brightness(.85) blur(.4px)
+      }
+
+      30%,
+      35% {
+        opacity: .6;
+        filter: brightness(1.1) blur(0px)
+      }
+
+      40% {
+        opacity: .45;
+        filter: brightness(.85) blur(.4px)
+      }
+
+      45% {
+        opacity: .35;
+        filter: brightness(.75) blur(.6px)
+      }
+
+      100% {
+        opacity: .3;
+        filter: brightness(.7) blur(.7px)
+      }
+    }
+
+    @keyframes arrowWave4 {
+      0% {
+        opacity: .15;
+        filter: brightness(.6) blur(.8px)
+      }
+
+      5% {
+        opacity: .2;
+        filter: brightness(.7) blur(.7px)
+      }
+
+      10% {
+        opacity: .25;
+        filter: brightness(.8) blur(.5px)
+      }
+
+      15%,
+      25% {
+        opacity: .4;
+        filter: brightness(1.05) blur(0px)
+      }
+
+      35% {
+        opacity: .25;
+        filter: brightness(.8) blur(.5px)
+      }
+
+      45% {
+        opacity: .2;
+        filter: brightness(.7) blur(.7px)
+      }
+
+      100% {
+        opacity: .15;
+        filter: brightness(.6) blur(.8px)
+      }
+    }
+
+    .vt-direction-marker--front svg {
+      transform: rotate(0deg)
+    }
+
+    .vt-direction-marker--right svg {
+      transform: rotate(90deg)
+    }
+
+    .vt-direction-marker--back svg {
+      transform: rotate(180deg)
+    }
+
+    .vt-direction-marker--left svg {
+      transform: rotate(270deg)
+    }
+
+    .vt-direction-marker:hover {
+      transform: scale(1.12);
+      filter: drop-shadow(0 18px 24px rgba(15, 23, 42, .8))
+    }
+
+    .psv-marker {
+      display: none !important;
+    }
+
+    .psv-marker.psv-marker--visible {
+      display: flex !important;
+      }
+
+    /* Compass Styles */
+    #compass {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      width: 80px;
+      height: 80px;
+      z-index: 12;
+      pointer-events: none;
+    }
+
+    .compass-container {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.6);
+      border: 2px solid rgba(255, 255, 255, 0.8);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .compass-rose {
+      width: 90%;
+      height: 90%;
+      position: relative;
+      transform-origin: center;
+      transition: transform 0.1s ease-out;
+    }
+
+    .compass-north {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #ff0000;
+      font-weight: bold;
+      font-size: 14px;
+      text-shadow: 0 0 3px rgba(0, 0, 0, 0.8);
+      line-height: 1;
+    }
+
+    .compass-needle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 3px;
+      height: 35%;
+      background: linear-gradient(to bottom, #ff0000 0%, #ff0000 50%, #333 50%, #333 100%);
+      transform-origin: center bottom;
+      transform: translate(-50%, -100%);
+      border-radius: 2px;
+      box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .compass-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 8px;
+      height: 8px;
+      background: #fff;
+      border: 2px solid #000;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+    }
+
+    .compass-cardinal {
+      position: absolute;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 10px;
+      font-weight: bold;
+      text-shadow: 0 0 2px rgba(0, 0, 0, 0.8);
+    }
+
+    .compass-cardinal.north {
+      top: 2px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .compass-cardinal.south {
+      bottom: 2px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .compass-cardinal.east {
+      right: 2px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .compass-cardinal.west {
+      left: 2px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    </style>
+  </head>
+
+  <body>
+    <div id="viewer" aria-label="360 viewer"></div>
+    <div id="compass">
+      <div class="compass-container">
+        <div class="compass-rose">
+          <div class="compass-north">N</div>
+          <div class="compass-cardinal north">N</div>
+          <div class="compass-cardinal south">S</div>
+          <div class="compass-cardinal east">E</div>
+          <div class="compass-cardinal west">W</div>
+          <div class="compass-needle"></div>
+          <div class="compass-center"></div>
+        </div>
+      </div>
+    </div>
+  <input id="jsonInput" type="file" accept="application/json"
+    style="position:fixed; top:16px; right:16px; z-index:13; background: rgba(0,0,0,0.4); color:#fff; border:1px solid rgba(255,255,255,0.4); padding:6px 10px; border-radius:6px;" />
+  <!-- Removed separate download link; use navbar built-in download button -->
+
+  
+  <script>
+    // Embedded tour data (auto-loaded on page load)
+    window.EMBEDDED_TOUR_DATA = {
+  "startId": "1",
+  "startView": {
+    "yaw": 0.6276600611013717,
+    "pitch": -0.15925124050455164,
+    "zoom": 0
+  },
+  "nodes": [
+    {
+      "id": "1",
+      "name": "1.jpg",
+      "panorama": "images/1.jpg",
+      "links": [
+        {
+          "id": "marker-ds2c0o-mi27isma",
+          "nodeId": "2",
+          "name": "2.jpg",
+          "tooltip": "2.jpg",
+          "position": {
+            "longitude": 0.8861916242582892,
+            "latitude": -0.07057853837874672
+          },
+          "longitude": 0.8861916242582892,
+          "latitude": -0.07057853837874672,
+          "linkOffset": {
+            "yaw": 2.8979751321211102,
+            "pitch": -0.14587005586471014,
+            "zoom": 15.49499999999535
+          },
+          "size": 100,
+          "color": "#000000",
+          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--right\" style=\"--vt-marker-color:#000000;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"22.8 4.8 10.7 4.8 27.2 25 10.7 45.2 22.8 45.2 39.3 25 22.8 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"22.8 4.8 10.7 4.8 27.2 25 10.7 45.2 22.8 45.2 39.3 25 22.8 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"22.8 4.8 10.7 4.8 27.2 25 10.7 45.2 22.8 45.2 39.3 25 22.8 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"22.8 4.8 10.7 4.8 27.2 25 10.7 45.2 22.8 45.2 39.3 25 22.8 4.8\"/></svg>\n              </span>",
+          "className": "vt-direction-marker-wrapper",
+          "anchor": "center"
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "name": "2.jpg",
+      "panorama": "images/2.jpg",
+      "links": [
+        {
+          "id": "marker-brgul9-mi2782my",
+          "nodeId": "3",
+          "name": "3.jpg",
+          "tooltip": "3.jpg",
+          "position": {
+            "longitude": 2.787324769776256,
+            "latitude": -0.47825493594718527
+          },
+          "longitude": 2.787324769776256,
+          "latitude": -0.47825493594718527,
+          "linkOffset": {
+            "yaw": 4.761438848273362,
+            "pitch": -0.10147263092990189,
+            "zoom": 11.171875000011312
+          },
+          "size": 150,
+          "color": "#000000",
+          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--right\" style=\"--vt-marker-color:#000000;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"22.8 4.8 10.7 4.8 27.2 25 10.7 45.2 22.8 45.2 39.3 25 22.8 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"22.8 4.8 10.7 4.8 27.2 25 10.7 45.2 22.8 45.2 39.3 25 22.8 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"22.8 4.8 10.7 4.8 27.2 25 10.7 45.2 22.8 45.2 39.3 25 22.8 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"22.8 4.8 10.7 4.8 27.2 25 10.7 45.2 22.8 45.2 39.3 25 22.8 4.8\"/></svg>\n              </span>",
+          "className": "vt-direction-marker-wrapper",
+          "anchor": "center"
+        },
+        {
+          "id": "marker-8y5oqi-mi27hznq",
+          "nodeId": "1",
+          "name": "1.jpg",
+          "tooltip": "1.jpg",
+          "position": {
+            "longitude": 5.982554101948755,
+            "latitude": -0.15951409595854615
+          },
+          "longitude": 5.982554101948755,
+          "latitude": -0.15951409595854615,
+          "linkOffset": {
+            "yaw": 5.881083737172475,
+            "pitch": -0.10147263092990277,
+            "zoom": 50
+          },
+          "size": 100,
+          "color": "#000000",
+          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--left\" style=\"--vt-marker-color:#000000;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"27.2 4.8 39.3 4.8 22.8 25 39.3 45.2 27.2 45.2 10.7 25 27.2 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"27.2 4.8 39.3 4.8 22.8 25 39.3 45.2 27.2 45.2 10.7 25 27.2 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"27.2 4.8 39.3 4.8 22.8 25 39.3 45.2 27.2 45.2 10.7 25 27.2 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"27.2 4.8 39.3 4.8 22.8 25 39.3 45.2 27.2 45.2 10.7 25 27.2 4.8\"/></svg>\n              </span>",
+          "className": "vt-direction-marker-wrapper",
+          "anchor": "center"
+        }
+      ]
+    },
+    {
+      "id": "3",
+      "name": "3.jpg",
+      "panorama": "images/3.jpg",
+      "links": [
+        {
+          "id": "marker-vjlsbl-mi278tyq",
+          "nodeId": "4",
+          "name": "4.jpg",
+          "tooltip": "4.jpg",
+          "position": {
+            "longitude": 4.455793572386606,
+            "latitude": -0.39866015294402257
+          },
+          "longitude": 4.455793572386606,
+          "latitude": -0.39866015294402257,
+          "linkOffset": {
+            "yaw": 0.3379726547705949,
+            "pitch": 0,
+            "zoom": 0
+          },
+          "size": 100,
+          "color": "#050505",
+          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--front\" style=\"--vt-marker-color:#050505;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n              </span>",
+          "className": "vt-direction-marker-wrapper",
+          "anchor": "center"
+        },
+        {
+          "id": "marker-8hlt28-mi27h7zj",
+          "nodeId": "2",
+          "name": "2.jpg",
+          "tooltip": "2.jpg",
+          "position": {
+            "longitude": 1.4651568588767965,
+            "latitude": -0.3755678523400996
+          },
+          "longitude": 1.4651568588767965,
+          "latitude": -0.3755678523400996,
+          "linkOffset": {
+            "yaw": 6.203458271747143,
+            "pitch": -0.03247124189756834,
+            "zoom": 50
+          },
+          "size": 100,
+          "color": "#050505",
+          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--front\" style=\"--vt-marker-color:#050505;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n              </span>",
+          "className": "vt-direction-marker-wrapper",
+          "anchor": "center"
+        }
+      ]
+    },
+    {
+      "id": "4",
+      "name": "4.jpg",
+      "panorama": "images/4.jpg",
+      "links": [
+        {
+          "id": "marker-su1iim-mi27abqc",
+          "nodeId": "5",
+          "name": "5.jpg",
+          "tooltip": "5.jpg",
+          "position": {
+            "longitude": 6.001165015073979,
+            "latitude": -0.6307260052487114
+          },
+          "longitude": 6.001165015073979,
+          "latitude": -0.6307260052487114,
+          "linkOffset": {
+            "yaw": 5.3784567746635865,
+            "pitch": -0.13800277806466799,
+            "zoom": 0
+          },
+          "size": 100,
+          "color": "#000000",
+          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--front_left\" style=\"--vt-marker-color:#000000;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"33.5 6.8 42.1 14.4 17.6 18.4 16.5 43.2 7.9 35.6 9 10.7 33.5 6.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"33.5 6.8 42.1 14.4 17.6 18.4 16.5 43.2 7.9 35.6 9 10.7 33.5 6.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"33.5 6.8 42.1 14.4 17.6 18.4 16.5 43.2 7.9 35.6 9 10.7 33.5 6.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"33.5 6.8 42.1 14.4 17.6 18.4 16.5 43.2 7.9 35.6 9 10.7 33.5 6.8\"/></svg>\n              </span>",
+          "className": "vt-direction-marker-wrapper",
+          "anchor": "center"
+        },
+        {
+          "id": "marker-er0k8h-mi27askd",
+          "nodeId": "6",
+          "name": "6.jpg",
+          "tooltip": "6.jpg",
+          "position": {
+            "longitude": 6.279745946081664,
+            "latitude": -0.36674725645391626
+          },
+          "longitude": 6.279745946081664,
+          "latitude": -0.36674725645391626,
+          "linkOffset": {
+            "yaw": 5.936546022690696,
+            "pitch": -0.024353431423176364,
+            "zoom": 0
+          },
+          "size": 100,
+          "color": "#000000",
+          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--front\" style=\"--vt-marker-color:#000000;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n              </span>",
+          "className": "vt-direction-marker-wrapper",
+          "anchor": "center"
+        },
+        {
+          "id": "marker-m77flz-mi27ce0x",
+          "nodeId": "3",
+          "name": "3.jpg",
+          "tooltip": "3.jpg",
+          "position": {
+            "longitude": 3.440012247654343,
+            "latitude": -0.660785838597671
+          },
+          "longitude": 3.440012247654343,
+          "latitude": -0.660785838597671,
+          "linkOffset": {
+            "yaw": 1.7518211430161368,
+            "pitch": -0.25650712039775003,
+            "zoom": 20.97048999999932
+          },
+          "size": 100,
+          "color": "#000000",
+          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--front\" style=\"--vt-marker-color:#000000;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n              </span>",
+          "className": "vt-direction-marker-wrapper",
+          "anchor": "center"
+        },
+        {
+          "id": "marker-4eetyi-mi27dc70",
+          "nodeId": "7",
+          "name": "7.jpg",
+          "tooltip": "7.jpg",
+          "position": {
+            "longitude": 3.8289569333399887,
+            "latitude": -0.6034926477987712
+          },
+          "longitude": 3.8289569333399887,
+          "latitude": -0.6034926477987712,
+          "linkOffset": {
+            "yaw": 3.7067943229366467,
+            "pitch": -0.2170284719532285,
+            "zoom": 0
+          },
+          "size": 100,
+          "color": "#0a0a0a",
+          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--front_right\" style=\"--vt-marker-color:#0a0a0a;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"16.4 6.6 7.7 14.3 32.5 18.3 33.6 43.4 42.3 35.7 41.2 10.6 16.4 6.6\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"16.4 6.6 7.7 14.3 32.5 18.3 33.6 43.4 42.3 35.7 41.2 10.6 16.4 6.6\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"16.4 6.6 7.7 14.3 32.5 18.3 33.6 43.4 42.3 35.7 41.2 10.6 16.4 6.6\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"16.4 6.6 7.7 14.3 32.5 18.3 33.6 43.4 42.3 35.7 41.2 10.6 16.4 6.6\"/></svg>\n              </span>",
+          "className": "vt-direction-marker-wrapper",
+          "anchor": "center"
+        }
+      ]
+    },
+    {
+      "id": "5",
+      "name": "5.jpg",
+      "panorama": "images/5.jpg",
+      "links": [
+        {
+          "id": "marker-v22w89-mi27bpa7",
+          "nodeId": "4",
+          "name": "4.jpg",
+          "tooltip": "4.jpg",
+          "position": {
+            "longitude": 2.6381974358899116,
+            "latitude": -0.5311968743047948
+          },
+          "longitude": 2.6381974358899116,
+          "latitude": -0.5311968743047948,
+          "linkOffset": {
+            "yaw": 3.467305229312374,
+            "pitch": -0.32063718748635406,
+            "zoom": 26.772774999987575
+          },
+          "size": 100,
+          "color": "#f84f4f",
+          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--front\" style=\"--vt-marker-color:#f84f4f;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n              </span>",
+          "className": "vt-direction-marker-wrapper",
+          "anchor": "center"
+        }
+      ]
+    },
+    {
+      "id": "6",
+      "name": "6.jpg",
+      "panorama": "images/6.jpg",
+      "links": [
+        {
+          "id": "marker-8qg4h5-mi27e4t3",
+          "nodeId": "4",
+          "name": "4.jpg",
+          "tooltip": "4.jpg",
+          "position": {
+            "longitude": 2.849859292419646,
+            "latitude": -0.6202245511211619
+          },
+          "longitude": 2.849859292419646,
+          "latitude": -0.6202245511211619,
+          "linkOffset": {
+            "yaw": 3.521378711249144,
+            "pitch": -0.2963000823153159,
+            "zoom": 7.75
+          },
+          "size": 150,
+          "color": "#00ffcc",
+          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--front\" style=\"--vt-marker-color:#00ffcc;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n              </span>",
+          "className": "vt-direction-marker-wrapper",
+          "anchor": "center"
+        }
+      ]
+    },
+    {
+      "id": "7",
+      "name": "7.jpg",
+      "panorama": "images/7.jpg",
+      "links": [
+        {
+          "id": "marker-aiv2l2-mi27ey6y",
+          "nodeId": "8",
+          "name": "8.jpg",
+          "tooltip": "8.jpg",
+          "position": {
+            "longitude": 5.06063582074919,
+            "latitude": -0.1885117453417431
+          },
+          "longitude": 5.06063582074919,
+          "latitude": -0.1885117453417431,
+          "linkOffset": {
+            "yaw": 3.719797405803893,
+            "pitch": -0.6036655944859577,
+            "zoom": 0
+          },
+          "size": 100,
+          "color": "#000000",
+          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--front\" style=\"--vt-marker-color:#000000;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n              </span>",
+          "className": "vt-direction-marker-wrapper",
+          "anchor": "center"
+        },
+        {
+          "id": "marker-vu13th-mi27flbt",
+          "nodeId": "9",
+          "name": "9.jpg",
+          "tooltip": "9.jpg",
+          "position": {
+            "longitude": 3.7339034415848866,
+            "latitude": -0.34100149252293455
+          },
+          "longitude": 3.7339034415848866,
+          "latitude": -0.34100149252293455,
+          "linkOffset": {
+            "yaw": 1.8576615408790034,
+            "pitch": -0.2063880777308773,
+            "zoom": 50
+          },
+          "size": 100,
+          "color": "#000000",
+          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--right\" style=\"--vt-marker-color:#000000;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"22.8 4.8 10.7 4.8 27.2 25 10.7 45.2 22.8 45.2 39.3 25 22.8 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"22.8 4.8 10.7 4.8 27.2 25 10.7 45.2 22.8 45.2 39.3 25 22.8 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"22.8 4.8 10.7 4.8 27.2 25 10.7 45.2 22.8 45.2 39.3 25 22.8 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"22.8 4.8 10.7 4.8 27.2 25 10.7 45.2 22.8 45.2 39.3 25 22.8 4.8\"/></svg>\n              </span>",
+          "className": "vt-direction-marker-wrapper",
+          "anchor": "center"
+        },
+        {
+          "id": "marker-e1yytu-mi27gbpd",
+          "nodeId": "4",
+          "name": "4.jpg",
+          "tooltip": "4.jpg",
+          "position": {
+            "longitude": 0.5993472979141043,
+            "latitude": -0.09322493274448407
+          },
+          "longitude": 0.5993472979141043,
+          "latitude": -0.09322493274448407,
+          "linkOffset": {
+            "yaw": 0.17656040934355016,
+            "pitch": -0.3364945672924122,
+            "zoom": 0
+          },
+          "size": 100,
+          "color": "#000000",
+          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--front\" style=\"--vt-marker-color:#000000;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n              </span>",
+          "className": "vt-direction-marker-wrapper",
+          "anchor": "center"
+        }
+      ]
+    },
+    {
+      "id": "8",
+      "name": "8.jpg",
+      "panorama": "images/8.jpg",
+      "links": [
+        {
+          "id": "marker-pli4y0-mi27s2kz",
+          "nodeId": "4",
+          "name": "4.jpg",
+          "tooltip": "4.jpg",
+          "position": {
+            "longitude": 0.5832706074114842,
+            "latitude": -0.011324884070583296
+          },
+          "longitude": 0.5832706074114842,
+          "latitude": -0.011324884070583296,
+          "linkOffset": {
+            "yaw": 0.21541638118325293,
+            "pitch": 0,
+            "zoom": 0
+          },
+          "size": 100,
+          "color": "#000000",
+          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--left\" style=\"--vt-marker-color:#000000;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"27.2 4.8 39.3 4.8 22.8 25 39.3 45.2 27.2 45.2 10.7 25 27.2 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"27.2 4.8 39.3 4.8 22.8 25 39.3 45.2 27.2 45.2 10.7 25 27.2 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"27.2 4.8 39.3 4.8 22.8 25 39.3 45.2 27.2 45.2 10.7 25 27.2 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"27.2 4.8 39.3 4.8 22.8 25 39.3 45.2 27.2 45.2 10.7 25 27.2 4.8\"/></svg>\n              </span>",
+          "className": "vt-direction-marker-wrapper",
+          "anchor": "center"
+        },
+        {
+          "id": "marker-cu901z-mi27so3i",
+          "nodeId": "9",
+          "name": "9.jpg",
+          "tooltip": "9.jpg",
+          "position": {
+            "longitude": 0.9589462245557845,
+            "latitude": -0.019743369928168608
+          },
+          "longitude": 0.9589462245557845,
+          "latitude": -0.019743369928168608,
+          "linkOffset": {
+            "yaw": 0.5822747795198241,
+            "pitch": -0.08929591521831481,
+            "zoom": 0
+          },
+          "size": 100,
+          "color": "#000000",
+          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--right\" style=\"--vt-marker-color:#000000;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"22.8 4.8 10.7 4.8 27.2 25 10.7 45.2 22.8 45.2 39.3 25 22.8 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"22.8 4.8 10.7 4.8 27.2 25 10.7 45.2 22.8 45.2 39.3 25 22.8 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"22.8 4.8 10.7 4.8 27.2 25 10.7 45.2 22.8 45.2 39.3 25 22.8 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"22.8 4.8 10.7 4.8 27.2 25 10.7 45.2 22.8 45.2 39.3 25 22.8 4.8\"/></svg>\n              </span>",
+          "className": "vt-direction-marker-wrapper",
+          "anchor": "center"
+        }
+      ]
+    },
+    {
+      "id": "9",
+      "name": "9.jpg",
+      "panorama": "images/9.jpg",
+      "links": [
+        {
+          "id": "marker-uupusq-mi27qk67",
+          "nodeId": "4",
+          "name": "4.jpg",
+          "tooltip": "4.jpg",
+          "position": {
+            "longitude": 3.179263190446174,
+            "latitude": -0.053889741680955616
+          },
+          "longitude": 3.179263190446174,
+          "latitude": -0.053889741680955616,
+          "linkOffset": {
+            "yaw": 0.3783269646668028,
+            "pitch": -0.22824434074351352,
+            "zoom": 25.609645000126097
+          },
+          "size": 100,
+          "color": "#000000",
+          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--front\" style=\"--vt-marker-color:#000000;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n              </span>",
+          "className": "vt-direction-marker-wrapper",
+          "anchor": "center"
+        },
+        {
+          "id": "marker-0o66ji-mi27ra4v",
+          "nodeId": "8",
+          "name": "8.jpg",
+          "tooltip": "8.jpg",
+          "position": {
+            "longitude": 2.8293487061315457,
+            "latitude": -0.19138177516447352
+          },
+          "longitude": 2.8293487061315457,
+          "latitude": -0.19138177516447352,
+          "linkOffset": {
+            "yaw": 4.1512012647307435,
+            "pitch": -0.2800644613665302,
+            "zoom": 0
+          },
+          "size": 100,
+          "color": "#000000",
+          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--left\" style=\"--vt-marker-color:#000000;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"27.2 4.8 39.3 4.8 22.8 25 39.3 45.2 27.2 45.2 10.7 25 27.2 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"27.2 4.8 39.3 4.8 22.8 25 39.3 45.2 27.2 45.2 10.7 25 27.2 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"27.2 4.8 39.3 4.8 22.8 25 39.3 45.2 27.2 45.2 10.7 25 27.2 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"27.2 4.8 39.3 4.8 22.8 25 39.3 45.2 27.2 45.2 10.7 25 27.2 4.8\"/></svg>\n              </span>",
+          "className": "vt-direction-marker-wrapper",
+          "anchor": "center"
+        }
+      ]
+    }
+  ]
+};
+  </script><script type="module">
+    import { Viewer, EquirectangularAdapter } from '@photo-sphere-viewer/core';
+    import { GalleryPlugin } from '@photo-sphere-viewer/gallery-plugin';
+    import { MarkersPlugin } from '@photo-sphere-viewer/markers-plugin';
+    import { VirtualTourPlugin } from '@photo-sphere-viewer/virtual-tour-plugin';
+    import { AutorotatePlugin } from '@photo-sphere-viewer/autorotate-plugin';
+
+    // ⬇️ TRANSITION CONFIGURATION - ALL TIMING VALUES IN ONE PLACE
+    // Change these values to adjust all transition speeds throughout the application
+    const TRANSITION_CONFIG = {
+      // === FADE TRANSITION SPEED ===
+      // Controls how fast panoramas fade between each other
+      fadeSpeed: 1200,        // Duration in milliseconds
+                                 // - Affects: defaultTransition, VirtualTourPlugin, setPanorama transition
+                                 // - Lower = faster fade, Higher = slower fade
+                                 // - Recommended: 400-1500ms (400=fast, 800=medium, 1200=slow, 1500=very slow)
+                                 // - Effect: Changes how quickly one panorama fades to another
+
+      // === ROTATION ANIMATION SPEED ===
+      // Controls how fast camera rotates to target position (yaw/pitch)
+      rotationSpeed: 1200,    // Duration in milliseconds (MUST match fadeSpeed for synchronization)
+                                 // - Affects: viewer.animate() for rotation (yaw/pitch)
+                                 // - Lower = faster rotation, Higher = slower rotation
+                                 // - MUST equal fadeSpeed for perfect synchronization
+                                 // - Effect: Changes how quickly camera rotates to target view
+
+      // === ZOOM ANIMATION SPEED ===
+      // Controls how fast zoom level changes (included in rotation animation)
+      zoomSpeed: 1200,        // Duration in milliseconds (MUST match rotationSpeed)
+                                 // - Affects: viewer.animate() zoom parameter
+                                 // - Usually same as rotationSpeed (included in same animate call)
+                                 // - Effect: Changes how quickly zoom level adjusts
+
+      // === FOV (FIELD OF VIEW) ANIMATION SPEED ===
+      // Controls how fast field of view changes (zoom level adjustment)
+      fovSpeed: 1200,         // Duration in milliseconds (MUST match rotationSpeed)
+                                 // - Affects: viewer.setFov() animation
+                                 // - MUST equal rotationSpeed for synchronization
+                                 // - Effect: Changes how quickly FOV adjusts
+
+      // === VIEW APPLICATION DELAY ===
+      // Delay before applying rotation/zoom after panorama loads
+      viewApplicationDelay: 0,  // Delay in milliseconds
+                                    // - 0ms = Start rotation immediately with fade (perfect sync)
+                                    // - Higher = Wait longer before starting rotation
+                                    // - Recommended: 0-100ms (0=sync with fade, 50-100=small delay)
+                                    // - Effect: When rotation starts relative to fade
+
+      // === FALLBACK TIMEOUT ===
+      // Safety timeout if panorama-loaded event doesn't fire
+      fallbackTimeout: 50,    // Delay in milliseconds
+                                 // - Safety buffer if event system fails
+                                 // - Should be minimal (50-100ms) to maintain sync
+                                 // - Effect: Backup timing if events don't work
+
+      // === TRANSITION EFFECT ===
+      // Visual effect used during panorama transitions
+      transitionEffect: 'fade',  // Options: 'fade', 'black', 'white', 'none'
+                                    // - 'fade' = Smooth crossfade (recommended)
+                                    // - 'black' = Fade to black then fade in
+                                    // - 'white' = Fade to white then fade in
+                                    // - 'none' = Instant switch (no transition)
+                                    // - Effect: Visual style of transition
+
+      // === EASING FUNCTION ===
+      // Animation easing curve for transitions
+      transitionEasing: 'ease-in-out',  // Options: 'ease-in-out', 'ease', 'ease-in', 'ease-out', 'linear'
+                                           // - 'ease-in-out' = Smooth acceleration and deceleration (recommended)
+                                           // - 'ease' = Gentle easing
+                                           // - 'linear' = Constant speed
+                                           // - Effect: How animation accelerates/decelerates
+
+      // === ROTATION EASING ===
+      // Animation easing for rotation (can be different from transition easing)
+      rotationEasing: 'inOutCubic',  // Options: 'inOutCubic', 'inCubic', 'outCubic', 'linear'
+                                         // - 'inOutCubic' = Smooth cubic curve (recommended)
+                                         // - 'linear' = Constant speed
+                                         // - Effect: How rotation animation accelerates/decelerates
+    };
+
+      // Prefer public '/assets/' for static hosting; fall back to '/src/assets/' in dev
+    const fileNames = ['pan.jpg', '1.jpg', '2.jpg', '3.jpg', '4.jpg', '5.jpg', '6.jpg', '7.jpg', '8.jpg', '9.jpg'];
+      const roots = ['/assets/', '/src/assets/'];
+
+      function probeImage(url) {
+        return new Promise((resolve) => {
+          const img = new Image();
+          img.onload = () => resolve(url);
+          img.onerror = () => resolve(null);
+          img.src = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
+        });
+      }
+
+      async function resolveFirstExisting(pathTail) {
+        for (const root of roots) {
+          const url = root + pathTail;
+          // eslint-disable-next-line no-await-in-loop
+          const ok = await probeImage(url);
+          if (ok) return ok;
+        }
+        return null;
+      }
+
+    const urls = (await Promise.all(fileNames.map((f) => resolveFirstExisting(f)))).filter(Boolean);
+    let items = urls.map((url, i) => ({
+      id: String(i + 1),
+      name: (url.split('/').pop() || `Pano ${i + 1}`),
+            panorama: url,
+            thumbnail: url
+    }));
+
+    const viewer = new Viewer({
+      container: document.getElementById('viewer'),
+      adapter: [EquirectangularAdapter, {}],
+      navbar: [
+        'zoom',
+        'move',
+        'autorotate',
+        'download',
+        // 'gallery',
+        'fullscreen'
+      ],
+      touchmoveTwoFingers: true,
+      // ⬇️ TRANSITION CONFIGURATION - Uses centralized TRANSITION_CONFIG variables
+      defaultTransition: {
+        speed: TRANSITION_CONFIG.fadeSpeed,      // Uses centralized fade speed
+        effect: TRANSITION_CONFIG.transitionEffect,  // Uses centralized effect
+        rotation: false,   // Disable rotation during transition to prevent view jumping
+                           // Rotation/zoom will be applied via viewer.animate() synchronized with fade
+        easing: TRANSITION_CONFIG.transitionEasing,  // Uses centralized easing
+      },
+      plugins: [
+        // [GalleryPlugin, { visibleOnLoad: true, items }],
+        [MarkersPlugin, {}],
+        [VirtualTourPlugin, {
+          // ⬇️ TRANSITION CONFIGURATION - Uses centralized TRANSITION_CONFIG variables
+          transitionOptions: {
+            speed: TRANSITION_CONFIG.fadeSpeed,      // Uses centralized fade speed (matches defaultTransition)
+            effect: TRANSITION_CONFIG.transitionEffect,  // Uses centralized effect
+            easing: TRANSITION_CONFIG.transitionEasing,  // Uses centralized easing
+            rotation: false,   // Disable rotation during transition to prevent flicker
+                               // View (yaw/pitch/zoom) is applied via viewer.animate() synchronized with fade
+            showLoader: false  // Hide loader during transition for cleaner look
+          }
+        }],
+        [AutorotatePlugin, { autostartOnIdle: false, autostartDelay: null }]
+      ]
+    });
+
+    const gallery = viewer.getPlugin('gallery');
+    const markers = viewer.getPlugin('markers');
+    let bindingsReady = false;
+    function bindGallerySelection() {
+      if (bindingsReady || !gallery) return;
+      const handler = (_e, item) => {
+        const id = item?.id ?? item?.targetId ?? item?.data?.id ?? item;
+        if (id) setCurrentNode(String(id));
+      };
+      try {
+        if (typeof gallery.addEventListener === 'function') {
+          gallery.addEventListener('select', handler);
+          gallery.addEventListener('select-item', handler);
+        }
+      } catch (_) { }
+      try {
+        if (typeof gallery.on === 'function') {
+          gallery.on('select', handler);
+        }
+      } catch (_) { }
+      bindingsReady = true;
+    }
+    const vtour = viewer.getPlugin('virtual-tour');
+
+    // Marker-based navigation (used when uploading a vtour JSON with links)
+    let nodesById = {};
+    let currentNodeId = null;
+
+    // Check for embedded tour data (from HTML export feature)
+    let embeddedTourData = null;
+    if (typeof window.EMBEDDED_TOUR_DATA !== 'undefined') {
+      embeddedTourData = window.EMBEDDED_TOUR_DATA;
+      console.log('[PSV] Embedded tour data detected:', embeddedTourData);
+      // Hide JSON input immediately if embedded data is present
+      const jsonInput = document.getElementById('jsonInput');
+      if (jsonInput) {
+        jsonInput.style.display = 'none';
+      }
+    }
+    function normalizeDirection(dir) {
+      switch ((dir || '').toLowerCase().replace(/\s+/g, '_')) {
+        case 'front':
+        case 'top':
+        case 'north': return 'front';
+        case 'back':
+        case 'bottom':
+        case 'south': return 'back';
+        case 'right':
+        case 'east': return 'right';
+        case 'left':
+        case 'west': return 'left';
+        case 'front_right': return 'front_right';
+        case 'front_left': return 'front_left';
+        case 'back_right': return 'back_right';
+        case 'back_left': return 'back_left';
+        default: return null;
+      }
+    }
+    function toYawPitch(pos) {
+      if (!pos) return null;
+      const yaw = (typeof pos.yaw === 'number') ? pos.yaw : pos.longitude;
+      const pitch = (typeof pos.pitch === 'number') ? pos.pitch : pos.latitude;
+      if (typeof yaw !== 'number' || typeof pitch !== 'number') return null;
+      return { yaw, pitch };
+    }
+    function buildMarkersForNode(node) {
+      if (!node || !Array.isArray(node.links)) return [];
+      return node.links.map((lnk, i) => {
+        const position = toYawPitch(lnk.position);
+        if (!position) return null;
+        const direction = normalizeDirection(lnk.direction || lnk.data?.arrowDirection);
+        const base = {
+          id: `link-${node.id}-${i}`,
+          position,
+          // PSV Markers supports size for html/image markers
+          size: typeof lnk.size === 'number'
+            ? { width: lnk.size, height: lnk.size }
+            : (lnk.size && typeof lnk.size === 'object' ? lnk.size : undefined),
+          anchor: lnk.anchor ?? 'center',
+          tooltip: lnk.tooltip ?? lnk.name ?? `Go to ${lnk.nodeId}`,
+          data: { nodeId: lnk.nodeId, linkOffset: lnk.linkOffset || null }
+        };
+        // Prefer explicit marker content from JSON
+        if (lnk.html) {
+          let html = lnk.html;
+          if (direction && /class="[^"]*vt-direction-marker/.test(html) && !/vt-direction-marker--/.test(html)) {
+            html = html.replace(/class="([^"]*vt-direction-marker)([^"]*)"/, `class="$1 vt-direction-marker--${direction}$2"`);
+          }
+          return { ...base, html, className: lnk.className || 'vt-direction-marker-wrapper' };
+        }
+        if (lnk.image) {
+          const size = lnk.size || (lnk.width && lnk.height ? { width: lnk.width, height: lnk.height } : undefined);
+          // If a color is provided for an SVG, synthesize a mask-based HTML marker to tint it
+          if (lnk.color) {
+            const w = size?.width || (typeof lnk.size === 'number' ? lnk.size : 32) || 32;
+            const h = size?.height || (typeof lnk.size === 'number' ? lnk.size : 32) || 32;
+            const style = [
+              `width:${w}px`,
+              `height:${h}px`,
+              `background-color:${lnk.color}`,
+              `-webkit-mask-image:url(${lnk.image})`,
+              `mask-image:url(${lnk.image})`
+            ].join(';');
+            const cls = lnk.className ? `vt-mask-icon ${lnk.className}` : 'vt-mask-icon';
+            return { ...base, html: `<span class="${cls} demo" style="${style}"></span>` };
+          }
+          return { ...base, image: lnk.image, size };
+        }
+        // If className/size/color provided, synthesize an HTML marker
+        if (lnk.className || lnk.color || lnk.size || direction) {
+          const sz = typeof lnk.size === 'number' ? { width: lnk.size, height: lnk.size } : lnk.size || {};
+          const styleParts = [];
+          if (lnk.color) styleParts.push(`background:${lnk.color}`);
+          if (sz.width) styleParts.push(`width:${sz.width}px`);
+          if (sz.height) styleParts.push(`height:${sz.height}px`);
+          const styleAttr = styleParts.length ? ` style="${styleParts.join(';')}"` : '';
+          let cls = lnk.className ? `vt-link-marker ${lnk.className}` : 'vt-link-marker';
+          if (direction) cls += ` vt-direction-marker vt-direction-marker--${direction}`;
+          return { ...base, html: `<div class="${cls}"${styleAttr}></div>` };
+        }
+        // Fallback default arrow glyph
+        const dirClass = direction ? ` vt-direction-marker vt-direction-marker--${direction}` : '';
+        return { ...base, html: `<span class="vt-link-marker${dirClass}">⬈</span>` };
+      }).filter(Boolean);
+    }
+    async function setCurrentNode(nodeId, postView) {
+      const node = nodesById[nodeId];
+      if (!node) {
+        console.warn('[PSV] setCurrentNode: node not found', nodeId);
+        return;
+      }
+      currentNodeId = nodeId;
+      // Proactively clear previous node markers to avoid leakage during scene change
+      try { markers.setMarkers([]); } catch (_) { }
+      try {
+        if (postView && (typeof postView.yaw === 'number' || typeof postView.pitch === 'number' || typeof postView.zoom === 'number' || typeof postView.fov === 'number')) {
+          const epsilon = 1e-3;
+          const target = {
+            yaw: typeof postView.yaw === 'number' ? postView.yaw : undefined,
+            pitch: typeof postView.pitch === 'number' ? postView.pitch : undefined,
+            zoom: typeof postView.zoom === 'number' ? postView.zoom : undefined,
+            fov: typeof postView.fov === 'number' ? postView.fov : undefined
+          };
+          // Prevent duplicate application with a flag
+          let viewApplied = false;
+          
+          // Apply view after panorama transition completes (prevents zoom flicker)
+          const applyViewOnce = () => {
+            if (viewApplied) return; // Prevent duplicate
+            viewApplied = true;
+            
+            try {
+              // Set FOV first to prevent default FOV reset
+              if (typeof target.fov === 'number' && typeof viewer.setFov === 'function') {
+                try { viewer.setOption && viewer.setOption('default_fov', target.fov); } catch (_) { }
+              }
+              
+              // Apply all view changes together with smooth animation AFTER transition completes
+              // This ensures smooth zoom animation without flicker
+              const animOpts = {};
+              if (typeof target.yaw === 'number') animOpts.yaw = target.yaw;
+              if (typeof target.pitch === 'number') animOpts.pitch = target.pitch;
+              if (typeof target.zoom === 'number') animOpts.zoom = target.zoom; // Include zoom in animate
+              
+              // ⬇️ SMOOTH TRANSITION CONFIGURATION - View animation speed (rotation + zoom)
+              // This controls how fast the camera rotates and zooms to target position
+              // SYNCHRONIZED with fade transition - both start and complete together
+              if (Object.keys(animOpts).length && typeof viewer.animate === 'function') {
+                viewer.animate({
+                  ...animOpts,
+                  speed: TRANSITION_CONFIG.rotationSpeed,  // Uses centralized rotation speed (matches fadeSpeed)
+                  easing: TRANSITION_CONFIG.rotationEasing,  // Uses centralized rotation easing
+                });
+              } else {
+                // Fallback: apply separately if animate doesn't support all parameters
+                if (Object.keys(animOpts).length > 0) {
+                  const rot = {};
+                  if (animOpts.yaw !== undefined) rot.yaw = animOpts.yaw;
+                  if (animOpts.pitch !== undefined) rot.pitch = animOpts.pitch;
+                  if (Object.keys(rot).length) {
+                    try { viewer.rotate(rot); } catch (_) { }
+                  }
+                  if (animOpts.zoom !== undefined && typeof viewer.zoom === 'function') {
+                    try { viewer.zoom(animOpts.zoom); } catch (_) { }
+                  }
+                }
+              }
+              
+              // ⬇️ SMOOTH TRANSITION CONFIGURATION - FOV (Field of View) animation speed
+              // This controls how fast the field of view changes (zoom level adjustment)
+              if (typeof target.fov === 'number' && typeof viewer.setFov === 'function') {
+                try { viewer.setFov(target.fov, TRANSITION_CONFIG.fovSpeed); } catch (_) { }
+                // Uses centralized FOV speed (matches rotationSpeed for synchronization)
+              }
+            } catch (err) { console.warn('[PSV] post view apply failed', err); }
+          };
+          
+          // ⬇️ TRANSITION CONFIGURATION - Uses centralized TRANSITION_CONFIG delay
+          const onceLoaded = () => {
+            // Uses centralized viewApplicationDelay (0ms = start rotation with fade for perfect sync)
+            setTimeout(applyViewOnce, TRANSITION_CONFIG.viewApplicationDelay);
+            try { viewer.removeEventListener('panorama-loaded', onceLoaded); } catch (_) { }
+          };
+          
+          // Listen to panorama-loaded (not panorama-set) to wait for transition
+          try { viewer.addEventListener('panorama-loaded', onceLoaded); } catch (_) { 
+            // ⬇️ FALLBACK TIMEOUT - Uses centralized TRANSITION_CONFIG fallback timeout
+            setTimeout(applyViewOnce, TRANSITION_CONFIG.fallbackTimeout);
+          }
+        }
+        // ⬇️ TRANSITION CONFIGURATION - Uses centralized TRANSITION_CONFIG variables
+        await viewer.setPanorama(node.panorama, {
+          showLoader: false,
+          transition: {
+            speed: TRANSITION_CONFIG.fadeSpeed,      // Uses centralized fade speed
+            effect: TRANSITION_CONFIG.transitionEffect,  // Uses centralized effect
+            easing: TRANSITION_CONFIG.transitionEasing,  // Uses centralized easing
+            rotation: false,   // Disable rotation during transition
+                               // Rotation happens via viewer.animate() synchronized with fade
+          }
+        });
+      } catch (err) {
+        console.error('[PSV] setPanorama failed for node', nodeId, err);
+        return;
+      }
+      const built = buildMarkersForNode(node);
+      try {
+        if (typeof markers.clearMarkers === 'function') {
+          markers.clearMarkers();
+        }
+      } catch (_) { }
+      markers.setMarkers(built);
+      console.log('[PSV] markers applied for node', nodeId, built.length);
+    }
+    // Keep markers in sync when panorama changes via gallery or other actions
+    viewer.addEventListener('panorama-loaded', () => {
+      // Prefer the last requested node id; fallback to inferring by URL
+      let node = currentNodeId ? nodesById[currentNodeId] : null;
+      if (!node) {
+        const currentUrl = typeof viewer.getPanoramaUrl === 'function' ? viewer.getPanoramaUrl() : null;
+        node = currentUrl ? Object.values(nodesById).find((n) => n && n.panorama === currentUrl) : null;
+        if (node) currentNodeId = node.id;
+      }
+      // Hard reset markers to avoid plugin internal cache conflicts
+      try { markers.setMarkers([]); } catch (_) { }
+      try { markers.clearMarkers?.(); } catch (_) { }
+      const built = node ? buildMarkersForNode(node) : [];
+      markers.setMarkers(built);
+    });
+    // Robust marker click handling (listen on plugin and viewer)
+    function extractMarker(evt, arg) {
+      if (arg && arg.data) return arg;
+      if (evt && evt.detail && evt.detail.marker) return evt.detail.marker;
+      if (evt && evt.marker) return evt.marker;
+      if (evt && evt.args && evt.args[0]) return evt.args[0];
+      return null;
+    }
+    async function handleMarkerSelect(evt, arg) {
+      const m = extractMarker(evt, arg);
+      const targetId = m?.data?.nodeId;
+      if (!targetId) return;
+      const linkOffset = m.data.linkOffset;
+      try {
+        console.log('[PSV] click marker -> target:', String(targetId), 'linkOffset:', linkOffset);
+      } catch (_) { }
+      // setCurrentNode already handles linkOffset - no need to apply again (prevents duplicate zoom)
+      await setCurrentNode(String(targetId), linkOffset);
+    }
+    viewer.addEventListener('select-marker', handleMarkerSelect);
+    if (markers && typeof markers.addEventListener === 'function') {
+      markers.addEventListener('select-marker', handleMarkerSelect);
+    }
+
+    // Compass update logic
+    const compassRose = document.querySelector('.compass-rose');
+    if (compassRose) {
+      console.log('[Compass] Compass element found, initializing...');
+      let lastYaw = null;
+      let frameCount = 0;
+      
+      function updateCompass() {
+        try {
+          if (typeof viewer.getPosition !== 'function') {
+            if (frameCount === 0) console.warn('[Compass] viewer.getPosition is not a function');
+            return;
+          }
+          const position = viewer.getPosition();
+          if (!position) {
+            if (frameCount < 3) console.warn('[Compass] Position is null/undefined');
+            return;
+          }
+          
+          // Handle both yaw/longitude formats (Photo Sphere Viewer uses different property names)
+          const yawRadians = (typeof position.yaw === 'number') ? position.yaw : 
+                            (typeof position.longitude === 'number') ? position.longitude : null;
+          
+          if (yawRadians !== null && typeof yawRadians === 'number') {
+            // Only update if position changed (avoid unnecessary repaints)
+            if (lastYaw !== yawRadians) {
+              lastYaw = yawRadians;
+              // Convert yaw (radians) to degrees and rotate compass opposite direction
+              // to keep north pointing up
+              const yawDegrees = (yawRadians * 180) / Math.PI;
+              compassRose.style.transform = `rotate(${-yawDegrees}deg)`;
+              if (frameCount < 3) {
+                console.log('[Compass] Updated to:', yawDegrees, 'degrees (yaw:', yawRadians, 'rad)');
+              }
+            }
+          } else if (frameCount < 3) {
+            console.warn('[Compass] Position object structure:', position);
+            console.warn('[Compass] Available properties:', Object.keys(position));
+          }
+        } catch (err) {
+          console.warn('[Compass] Failed to update compass:', err);
+        }
+        frameCount++;
+      }
+
+      // Use requestAnimationFrame for smooth updates
+      function animateCompass() {
+        updateCompass();
+        requestAnimationFrame(animateCompass);
+      }
+
+      // Start animation loop after viewer is ready
+      if (typeof viewer.isReady === 'function' && viewer.isReady()) {
+        console.log('[Compass] Viewer is ready, starting compass animation');
+        animateCompass();
+      } else if (typeof viewer.once === 'function') {
+        console.log('[Compass] Waiting for viewer ready event...');
+        viewer.once('ready', () => {
+          console.log('[Compass] Viewer ready event fired, starting compass');
+          setTimeout(() => animateCompass(), 100);
+        });
+      } else {
+        // Fallback: start after a delay
+        console.log('[Compass] Using fallback delay, starting compass in 500ms');
+        setTimeout(() => animateCompass(), 500);
+      }
+
+      // Also try to listen to rotate events if available
+      try {
+        if (typeof viewer.addEventListener === 'function') {
+          viewer.addEventListener('rotate', updateCompass);
+        }
+        if (typeof viewer.on === 'function') {
+          viewer.on('rotate', updateCompass);
+        }
+      } catch (_) { }
+    }
+
+    function buildNodes(fromItems) {
+      return fromItems.map((it, i) => ({
+        id: it.id,
+        name: it.name,
+        panorama: it.panorama,
+        thumbnail: it.thumbnail,
+        links: [
+          ...(i > 0 ? [{ nodeId: fromItems[i - 1].id, position: { yaw: -Math.PI / 2, pitch: 0 } }] : []),
+          ...(i < fromItems.length - 1 ? [{ nodeId: fromItems[i + 1].id, position: { yaw: Math.PI / 2, pitch: 0 } }] : [])
+        ]
+      }));
+    }
+    if (items.length) {
+      // Do not set vtour nodes by default to avoid default vtour navigation overlay
+      nodesById = Object.fromEntries(
+        items.map((it) => [it.id, { ...it, links: [] }])
+      );
+      // Ensure gallery selection drives node changes
+      if (gallery && typeof gallery.setItems === 'function') {
+        try { gallery.setItems(items); } catch (_) { }
+      }
+      if (!bindingsReady) {
+        try {
+          if (typeof gallery.addEventListener === 'function') {
+            const onSelect = (_e, item) => {
+              const id = item?.id ?? item?.targetId ?? item?.data?.id ?? item;
+              if (id) setCurrentNode(id);
+            };
+            gallery.addEventListener('select', onSelect);
+            gallery.addEventListener('select-item', onSelect);
+          }
+        } catch (_) { }
+        bindingsReady = true;
+      }
+    }
+
+    // No default demo markers; JSON can define its own markers via nodes if needed
+
+    // Load embedded tour data if present (from HTML export)
+    let embeddedDataLoaded = false;
+    if (embeddedTourData) {
+      try {
+        console.log('[PSV] Loading embedded tour data');
+        const data = embeddedTourData;
+        let filenames = [];
+        
+        // Virtual-tour schema: { startId?, startView?, nodes: [...] }
+        if (Array.isArray(data?.nodes)) {
+          const nodesFromJson = data.nodes;
+          // Build gallery items from nodes
+          items = nodesFromJson.map((n, i) => ({
+            id: n.id ?? String(i + 1),
+            name: n.name ?? (n.panorama?.split('/').pop() || `Pano ${i + 1}`),
+            panorama: n.panorama,
+            thumbnail: n.thumbnail ?? n.panorama
+          }));
+          if (gallery && typeof gallery.setItems === 'function') {
+            gallery.setItems(items);
+            bindGallerySelection();
+          }
+          // Use markers instead of vtour validation so lon/lat are accepted
+          nodesById = Object.fromEntries(
+            nodesFromJson.map((n) => [n.id ?? String(n.panorama), {
+              id: n.id,
+              name: n.name,
+              panorama: n.panorama,
+              thumbnail: n.thumbnail ?? n.panorama,
+              links: Array.isArray(n.links) ? n.links : []
+            }])
+          );
+          const startId = data.startId ?? items[0]?.id;
+          const startView = data.startView || null;
+          if (startId) await setCurrentNode(startId, startView);
+          // Apply zoom for first node only (viewer.animate() doesn't support zoom)
+          if (startView && typeof startView.zoom === 'number' && typeof viewer.zoom === 'function') {
+            setTimeout(() => {
+              try {
+                viewer.zoom(startView.zoom, TRANSITION_CONFIG.rotationSpeed);
+                console.log('[PSV] First node zoom applied:', startView.zoom);
+              } catch (err) {
+                console.warn('[PSV] Failed to apply first node zoom:', err);
+                try { viewer.zoom(startView.zoom); } catch (_) { }
+              }
+            }, TRANSITION_CONFIG.viewApplicationDelay + 100);
+          }
+          console.log('[PSV] Embedded tour loaded. startId:', startId, 'startView:', startView);
+          
+          // Hide JSON input if embedded data is loaded
+          const jsonInput = document.getElementById('jsonInput');
+          if (jsonInput) {
+            jsonInput.style.display = 'none';
+          }
+          embeddedDataLoaded = true; // Mark as loaded to skip default initialization
+        }
+      } catch (err) {
+        console.error('[PSV] Failed to load embedded tour data', err);
+      }
+    }
+
+    // Initialize first panorama if any discovered (use marker-based setter)
+    // Skip if embedded data was loaded
+    if (!embeddedDataLoaded && items.length) {
+      await setCurrentNode(items[0].id);
+    }
+
+    // JSON import: supports ["1.jpg",...], {images:[...]}, or {items:[{...}]}
+    const jsonInput = document.getElementById('jsonInput');
+    jsonInput.addEventListener('change', async (e) => {
+      const file = jsonInput.files && jsonInput.files[0];
+      if (!file) return;
+      try {
+        console.log('[PSV] JSON upload detected:', file.name);
+        const text = await file.text();
+        const data = JSON.parse(text);
+        console.log('[PSV] Parsed JSON:', data);
+        let filenames = [];
+        // Virtual-tour schema: { startId?, nodes: [...] }
+        if (Array.isArray(data?.nodes)) {
+          const nodesFromJson = data.nodes;
+          // Build gallery items from nodes
+          items = nodesFromJson.map((n, i) => ({
+            id: n.id ?? String(i + 1),
+            name: n.name ?? (n.panorama?.split('/').pop() || `Pano ${i + 1}`),
+            panorama: n.panorama,
+            thumbnail: n.thumbnail ?? n.panorama
+          }));
+          if (gallery && typeof gallery.setItems === 'function') {
+            gallery.setItems(items);
+            bindGallerySelection();
+          }
+          // Use markers instead of vtour validation so lon/lat are accepted
+          nodesById = Object.fromEntries(
+            nodesFromJson.map((n) => [n.id ?? String(n.panorama), {
+              id: n.id,
+              name: n.name,
+              panorama: n.panorama,
+              thumbnail: n.thumbnail ?? n.panorama,
+              links: Array.isArray(n.links) ? n.links : []
+            }])
+          );
+          const startId = data.startId ?? items[0]?.id;
+          const startView = data.startView || null;
+          if (startId) await setCurrentNode(startId, startView);
+          // Apply zoom for first node only (viewer.animate() doesn't support zoom)
+          if (startView && typeof startView.zoom === 'number' && typeof viewer.zoom === 'function') {
+            setTimeout(() => {
+              try {
+                viewer.zoom(startView.zoom, TRANSITION_CONFIG.rotationSpeed);
+                console.log('[PSV] First node zoom applied:', startView.zoom);
+              } catch (err) {
+                console.warn('[PSV] Failed to apply first node zoom:', err);
+                try { viewer.zoom(startView.zoom); } catch (_) { }
+              }
+            }, TRANSITION_CONFIG.viewApplicationDelay + 100);
+          }
+          console.log('[PSV] Marker-based tour loaded. startId:', startId, 'startView:', startView);
+          jsonInput.value = '';
+          return;
+        }
+        if (Array.isArray(data)) {
+          filenames = data;
+        } else if (Array.isArray(data?.images)) {
+          filenames = data.images;
+        } else if (Array.isArray(data?.items)) {
+          items = data.items.map((it, i) => ({
+            id: it.id ?? String(i + 1),
+            name: it.name ?? (it.panorama?.split('/').pop() || `Pano ${i + 1}`),
+            panorama: it.panorama,
+            thumbnail: it.thumbnail ?? it.panorama
+          }));
+          if (gallery && typeof gallery.setItems === 'function') {
+            gallery.setItems(items);
+          }
+          if (vtour && typeof vtour.setNodes === 'function') {
+            vtour.setNodes(buildNodes(items));
+          }
+          if (vtour && typeof vtour.setCurrentNode === 'function' && items[0]?.id) {
+            await vtour.setCurrentNode(items[0].id);
+          }
+          jsonInput.value = '';
+          return;
+        }
+        const rootsToTry = ['/assets/', '/src/assets/'];
+        const resultUrls = [];
+        for (const fname of filenames) {
+          let found = null;
+          for (const root of rootsToTry) {
+            // eslint-disable-next-line no-await-in-loop
+            const ok = await probeImage(root + fname);
+            if (ok) { found = ok; break; }
+          }
+          if (found) resultUrls.push(found);
+        }
+        if (!resultUrls.length) return;
+        items = resultUrls.map((url, i) => ({
+          id: String(i + 1),
+          name: url.split('/').pop() || `Pano ${i + 1}`,
+          panorama: url,
+          thumbnail: url
+        }));
+        if (gallery && typeof gallery.setItems === 'function') {
+          gallery.setItems(items);
+        }
+        if (!bindingsReady) {
+          try {
+            if (typeof gallery.addEventListener === 'function') {
+              const onSelect = (_e, item) => {
+                const id = item?.id ?? item?.targetId ?? item?.data?.id ?? item;
+                if (id) setCurrentNode(id);
+              };
+              gallery.addEventListener('select', onSelect);
+              gallery.addEventListener('select-item', onSelect);
+            }
+          } catch (_) { }
+          bindingsReady = true;
+        }
+        nodesById = Object.fromEntries(
+          items.map((it) => [it.id, { ...it, links: [] }])
+        );
+        await setCurrentNode(items[0].id);
+      } catch (err) {
+        console.error('[PSV] Invalid JSON import', err);
+        alert('Invalid JSON file. See console for details.');
+      } finally {
+        jsonInput.value = '';
+      }
+    });
+    </script>
+  </body>
+
+  </html>
