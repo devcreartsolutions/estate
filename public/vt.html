@@ -3,7 +3,10 @@
 
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>Photo Sphere Viewer v5 - Static</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@photo-sphere-viewer/core@5.14.0/index.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@photo-sphere-viewer/gallery-plugin@5.14.0/index.css" />
@@ -11,6 +14,10 @@
   <link rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/@photo-sphere-viewer/virtual-tour-plugin@5.14.0/index.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@photo-sphere-viewer/autorotate-plugin@5.14.0/index.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@photo-sphere-viewer/gyroscope-plugin@5.14.0/index.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@photo-sphere-viewer/stereo-plugin@5.14.0/index.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@photo-sphere-viewer/settings-plugin@5.14.0/index.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@photo-sphere-viewer/resolution-plugin@5.14.0/index.css" />
   <script type="importmap">
       {
         "imports": {
@@ -19,7 +26,11 @@
           "@photo-sphere-viewer/gallery-plugin": "https://cdn.jsdelivr.net/npm/@photo-sphere-viewer/gallery-plugin@5.14.0/index.module.min.js",
           "@photo-sphere-viewer/markers-plugin": "https://cdn.jsdelivr.net/npm/@photo-sphere-viewer/markers-plugin@5.14.0/index.module.min.js",
           "@photo-sphere-viewer/virtual-tour-plugin": "https://cdn.jsdelivr.net/npm/@photo-sphere-viewer/virtual-tour-plugin@5.14.0/index.module.min.js",
-          "@photo-sphere-viewer/autorotate-plugin": "https://cdn.jsdelivr.net/npm/@photo-sphere-viewer/autorotate-plugin@5.14.0/index.module.min.js"
+          "@photo-sphere-viewer/autorotate-plugin": "https://cdn.jsdelivr.net/npm/@photo-sphere-viewer/autorotate-plugin@5.14.0/index.module.min.js",
+          "@photo-sphere-viewer/gyroscope-plugin": "https://cdn.jsdelivr.net/npm/@photo-sphere-viewer/gyroscope-plugin@5.14.0/index.module.min.js",
+          "@photo-sphere-viewer/stereo-plugin": "https://cdn.jsdelivr.net/npm/@photo-sphere-viewer/stereo-plugin@5.14.0/index.module.min.js",
+          "@photo-sphere-viewer/settings-plugin": "https://cdn.jsdelivr.net/npm/@photo-sphere-viewer/settings-plugin@5.14.0/index.module.min.js",
+          "@photo-sphere-viewer/resolution-plugin": "https://cdn.jsdelivr.net/npm/@photo-sphere-viewer/resolution-plugin@5.14.0/index.module.min.js"
         }
       }
     </script>
@@ -576,6 +587,122 @@
       top: 50%;
       transform: translateY(-50%);
     }
+
+    /* Mobile Responsive Styles */
+    @media (max-width: 768px) {
+      #viewer {
+        height: 100vh;
+        height: -webkit-fill-available; /* iOS Safari fix */
+      }
+
+      /* Smaller compass on mobile */
+      #compass {
+        top: 10px;
+        left: 10px;
+        width: 60px;
+        height: 60px;
+      }
+
+      .compass-north {
+        font-size: 11px;
+      }
+
+      .compass-cardinal {
+        font-size: 8px;
+      }
+
+      .compass-needle {
+        height: 30%;
+      }
+
+      /* Touch-friendly JSON input */
+      #jsonInput {
+        top: 10px;
+        right: 10px;
+        padding: 8px 12px;
+        font-size: 14px;
+        min-height: 44px; /* iOS touch target minimum */
+        border-radius: 8px;
+      }
+
+      /* PSV's built-in gyroscope button is in the navbar */
+
+      /* Larger touch targets for markers */
+      .vt-link-marker {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        min-height: 36px;
+      }
+
+      /* Prevent text selection on touch */
+      * {
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+
+      /* Allow text selection in inputs */
+      input, textarea {
+        -webkit-user-select: text;
+        user-select: text;
+      }
+
+      /* Hide navbar on mobile if it overlaps */
+      .psv-navbar {
+        font-size: 14px;
+      }
+
+      .psv-navbar-button {
+        min-width: 44px;
+        min-height: 44px;
+        padding: 8px;
+      }
+    }
+
+    /* Prevent double-tap zoom */
+    * {
+      touch-action: pan-x pan-y;
+    }
+
+    /* Better touch handling for markers */
+    .psv-marker {
+      touch-action: manipulation;
+    }
+
+    /* Prevent pull-to-refresh on mobile */
+    body {
+      overscroll-behavior-y: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Prevent text selection during pan */
+    #viewer {
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* iOS safe area support */
+    @supports (padding: max(0px)) {
+      #viewer {
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+      }
+
+      #compass {
+        top: max(10px, env(safe-area-inset-top));
+        left: max(10px, env(safe-area-inset-left));
+      }
+
+      #jsonInput {
+        top: max(10px, env(safe-area-inset-top));
+        right: max(10px, env(safe-area-inset-right));
+      }
+    }
     </style>
   </head>
 
@@ -597,472 +724,327 @@
   <input id="jsonInput" type="file" accept="application/json"
     style="position:fixed; top:16px; right:16px; z-index:13; background: rgba(0,0,0,0.4); color:#fff; border:1px solid rgba(255,255,255,0.4); padding:6px 10px; border-radius:6px;" />
   <!-- Removed separate download link; use navbar built-in download button -->
+  <!-- Note: Gyroscope is now handled by PSV's built-in GyroscopePlugin via navbar button -->
 
   
   <script>
     // Embedded tour data (auto-loaded on page load)
     window.EMBEDDED_TOUR_DATA = {
-  "startId": "1",
+  "startId": "20251115_145114_727",
   "startView": {
-    "yaw": 0.6276600611013717,
-    "pitch": -0.15925124050455164,
+    "yaw": 3.263715238586699,
+    "pitch": -0.1645561874728343,
     "zoom": 0
   },
   "nodes": [
     {
-      "id": "1",
-      "name": "1.jpg",
-      "panorama": "images/1.jpg",
+      "id": "20251115_145114_727",
+      "name": "20251115_145114_727.jpg",
+      "panorama": "images/20251115_145114_727.jpg",
       "links": [
         {
-          "id": "marker-ds2c0o-mi27isma",
-          "nodeId": "2",
-          "name": "2.jpg",
-          "tooltip": "2.jpg",
+          "id": "marker-cuza3u-mi28uokz",
+          "nodeId": "20251115_145120_151",
+          "name": "20251115_145120_151.jpg",
+          "tooltip": "20251115_145120_151.jpg",
           "position": {
-            "longitude": 0.8861916242582892,
-            "latitude": -0.07057853837874672
+            "longitude": 3.1762430490055436,
+            "latitude": -0.2509680261861491
           },
-          "longitude": 0.8861916242582892,
-          "latitude": -0.07057853837874672,
+          "longitude": 3.1762430490055436,
+          "latitude": -0.2509680261861491,
           "linkOffset": {
-            "yaw": 2.8979751321211102,
-            "pitch": -0.14587005586471014,
-            "zoom": 15.49499999999535
+            "yaw": 0.2979162718491808,
+            "pitch": -0.17656237781802941,
+            "zoom": 0
           },
           "size": 100,
-          "color": "#000000",
-          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--right\" style=\"--vt-marker-color:#000000;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"22.8 4.8 10.7 4.8 27.2 25 10.7 45.2 22.8 45.2 39.3 25 22.8 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"22.8 4.8 10.7 4.8 27.2 25 10.7 45.2 22.8 45.2 39.3 25 22.8 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"22.8 4.8 10.7 4.8 27.2 25 10.7 45.2 22.8 45.2 39.3 25 22.8 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"22.8 4.8 10.7 4.8 27.2 25 10.7 45.2 22.8 45.2 39.3 25 22.8 4.8\"/></svg>\n              </span>",
+          "color": "#ffbb00",
+          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--front\" style=\"--vt-marker-color:#ffbb00;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n              </span>",
           "className": "vt-direction-marker-wrapper",
           "anchor": "center"
         }
       ]
     },
     {
-      "id": "2",
-      "name": "2.jpg",
-      "panorama": "images/2.jpg",
+      "id": "20251115_145120_151",
+      "name": "20251115_145120_151.jpg",
+      "panorama": "images/20251115_145120_151.jpg",
       "links": [
         {
-          "id": "marker-brgul9-mi2782my",
-          "nodeId": "3",
-          "name": "3.jpg",
-          "tooltip": "3.jpg",
+          "id": "marker-gars86-mi28vysw",
+          "nodeId": "20251115_145132_970",
+          "name": "20251115_145132_970.jpg",
+          "tooltip": "20251115_145132_970.jpg",
           "position": {
-            "longitude": 2.787324769776256,
-            "latitude": -0.47825493594718527
+            "longitude": 0.19276204133287692,
+            "latitude": -0.31006569945992224
           },
-          "longitude": 2.787324769776256,
-          "latitude": -0.47825493594718527,
+          "longitude": 0.19276204133287692,
+          "latitude": -0.31006569945992224,
           "linkOffset": {
-            "yaw": 4.761438848273362,
-            "pitch": -0.10147263092990189,
-            "zoom": 11.171875000011312
+            "yaw": 0.20105078500355605,
+            "pitch": -0.06088357855794113,
+            "zoom": 0
           },
-          "size": 150,
-          "color": "#000000",
-          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--right\" style=\"--vt-marker-color:#000000;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"22.8 4.8 10.7 4.8 27.2 25 10.7 45.2 22.8 45.2 39.3 25 22.8 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"22.8 4.8 10.7 4.8 27.2 25 10.7 45.2 22.8 45.2 39.3 25 22.8 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"22.8 4.8 10.7 4.8 27.2 25 10.7 45.2 22.8 45.2 39.3 25 22.8 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"22.8 4.8 10.7 4.8 27.2 25 10.7 45.2 22.8 45.2 39.3 25 22.8 4.8\"/></svg>\n              </span>",
+          "size": 100,
+          "color": "#ffa200",
+          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--front\" style=\"--vt-marker-color:#ffa200;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n              </span>",
           "className": "vt-direction-marker-wrapper",
           "anchor": "center"
         },
         {
-          "id": "marker-8y5oqi-mi27hznq",
-          "nodeId": "1",
-          "name": "1.jpg",
-          "tooltip": "1.jpg",
+          "id": "marker-ksvokl-mi29g85l",
+          "nodeId": "20251115_145114_727",
+          "name": "20251115_145114_727.jpg",
+          "tooltip": "20251115_145114_727.jpg",
           "position": {
-            "longitude": 5.982554101948755,
-            "latitude": -0.15951409595854615
+            "longitude": 2.86329309866261,
+            "latitude": -0.3585088340021383
           },
-          "longitude": 5.982554101948755,
-          "latitude": -0.15951409595854615,
+          "longitude": 2.86329309866261,
+          "latitude": -0.3585088340021383,
           "linkOffset": {
-            "yaw": 5.881083737172475,
-            "pitch": -0.10147263092990277,
-            "zoom": 50
+            "yaw": 3.258044166173916,
+            "pitch": -0.07713386027250024,
+            "zoom": 5.90360000008624
           },
           "size": 100,
-          "color": "#000000",
-          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--left\" style=\"--vt-marker-color:#000000;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"27.2 4.8 39.3 4.8 22.8 25 39.3 45.2 27.2 45.2 10.7 25 27.2 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"27.2 4.8 39.3 4.8 22.8 25 39.3 45.2 27.2 45.2 10.7 25 27.2 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"27.2 4.8 39.3 4.8 22.8 25 39.3 45.2 27.2 45.2 10.7 25 27.2 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"27.2 4.8 39.3 4.8 22.8 25 39.3 45.2 27.2 45.2 10.7 25 27.2 4.8\"/></svg>\n              </span>",
+          "color": "#ffa200",
+          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--front\" style=\"--vt-marker-color:#ffa200;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n              </span>",
           "className": "vt-direction-marker-wrapper",
           "anchor": "center"
         }
       ]
     },
     {
-      "id": "3",
-      "name": "3.jpg",
-      "panorama": "images/3.jpg",
+      "id": "20251115_145132_970",
+      "name": "20251115_145132_970.jpg",
+      "panorama": "images/20251115_145132_970.jpg",
       "links": [
         {
-          "id": "marker-vjlsbl-mi278tyq",
-          "nodeId": "4",
-          "name": "4.jpg",
-          "tooltip": "4.jpg",
+          "id": "marker-qc6vp3-mi28ydwj",
+          "nodeId": "20251115_145128_821",
+          "name": "20251115_145128_821.jpg",
+          "tooltip": "20251115_145128_821.jpg",
           "position": {
-            "longitude": 4.455793572386606,
-            "latitude": -0.39866015294402257
+            "longitude": 0.6566472037711624,
+            "latitude": -0.4294197263824153
           },
-          "longitude": 4.455793572386606,
-          "latitude": -0.39866015294402257,
+          "longitude": 0.6566472037711624,
+          "latitude": -0.4294197263824153,
           "linkOffset": {
-            "yaw": 0.3379726547705949,
-            "pitch": 0,
-            "zoom": 0
+            "yaw": 4.086012153554407,
+            "pitch": -0.3121300497020778,
+            "zoom": 4.794975000006987
           },
           "size": 100,
-          "color": "#050505",
-          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--front\" style=\"--vt-marker-color:#050505;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n              </span>",
+          "color": "#ffa200",
+          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--front\" style=\"--vt-marker-color:#ffa200;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n              </span>",
           "className": "vt-direction-marker-wrapper",
           "anchor": "center"
         },
         {
-          "id": "marker-8hlt28-mi27h7zj",
-          "nodeId": "2",
-          "name": "2.jpg",
-          "tooltip": "2.jpg",
+          "id": "marker-qhyc5d-mi2941q9",
+          "nodeId": "20251115_145120_151",
+          "name": "20251115_145120_151.jpg",
+          "tooltip": "20251115_145120_151.jpg",
           "position": {
-            "longitude": 1.4651568588767965,
-            "latitude": -0.3755678523400996
+            "longitude": 3.3497274892853515,
+            "latitude": -0.2649288299790946
           },
-          "longitude": 1.4651568588767965,
-          "latitude": -0.3755678523400996,
+          "longitude": 3.3497274892853515,
+          "latitude": -0.2649288299790946,
           "linkOffset": {
-            "yaw": 6.203458271747143,
-            "pitch": -0.03247124189756834,
-            "zoom": 50
+            "yaw": 2.963324600915687,
+            "pitch": -0.12547712260969002,
+            "zoom": 0
           },
           "size": 100,
-          "color": "#050505",
-          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--front\" style=\"--vt-marker-color:#050505;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n              </span>",
+          "color": "#ff6600",
+          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--front\" style=\"--vt-marker-color:#ff6600;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n              </span>",
           "className": "vt-direction-marker-wrapper",
           "anchor": "center"
         }
       ]
     },
     {
-      "id": "4",
-      "name": "4.jpg",
-      "panorama": "images/4.jpg",
+      "id": "20251115_145128_821",
+      "name": "20251115_145128_821.jpg",
+      "panorama": "images/20251115_145128_821.jpg",
       "links": [
         {
-          "id": "marker-su1iim-mi27abqc",
-          "nodeId": "5",
-          "name": "5.jpg",
-          "tooltip": "5.jpg",
+          "id": "marker-dz22d5-mi28xjgq",
+          "nodeId": "20251115_145124_505",
+          "name": "20251115_145124_505.jpg",
+          "tooltip": "20251115_145124_505.jpg",
           "position": {
-            "longitude": 6.001165015073979,
-            "latitude": -0.6307260052487114
+            "longitude": 4.3094464829758845,
+            "latitude": -0.4938116827774084
           },
-          "longitude": 6.001165015073979,
-          "latitude": -0.6307260052487114,
+          "longitude": 4.3094464829758845,
+          "latitude": -0.4938116827774084,
           "linkOffset": {
-            "yaw": 5.3784567746635865,
-            "pitch": -0.13800277806466799,
+            "yaw": 3.158923488170092,
+            "pitch": -0.5338762350827659,
             "zoom": 0
           },
           "size": 100,
-          "color": "#000000",
-          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--front_left\" style=\"--vt-marker-color:#000000;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"33.5 6.8 42.1 14.4 17.6 18.4 16.5 43.2 7.9 35.6 9 10.7 33.5 6.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"33.5 6.8 42.1 14.4 17.6 18.4 16.5 43.2 7.9 35.6 9 10.7 33.5 6.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"33.5 6.8 42.1 14.4 17.6 18.4 16.5 43.2 7.9 35.6 9 10.7 33.5 6.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"33.5 6.8 42.1 14.4 17.6 18.4 16.5 43.2 7.9 35.6 9 10.7 33.5 6.8\"/></svg>\n              </span>",
+          "color": "#ffae00",
+          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--front\" style=\"--vt-marker-color:#ffae00;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n              </span>",
           "className": "vt-direction-marker-wrapper",
           "anchor": "center"
         },
         {
-          "id": "marker-er0k8h-mi27askd",
-          "nodeId": "6",
-          "name": "6.jpg",
-          "tooltip": "6.jpg",
+          "id": "marker-nece5n-mi2939kd",
+          "nodeId": "20251115_145132_970",
+          "name": "20251115_145132_970.jpg",
+          "tooltip": "20251115_145132_970.jpg",
           "position": {
-            "longitude": 6.279745946081664,
-            "latitude": -0.36674725645391626
+            "longitude": 1.0656459924677448,
+            "latitude": -0.2887598269641476
           },
-          "longitude": 6.279745946081664,
-          "latitude": -0.36674725645391626,
+          "longitude": 1.0656459924677448,
+          "latitude": -0.2887598269641476,
           "linkOffset": {
-            "yaw": 5.936546022690696,
-            "pitch": -0.024353431423176364,
+            "yaw": 3.5142834235251077,
+            "pitch": -0.061702844610862506,
             "zoom": 0
           },
           "size": 100,
-          "color": "#000000",
-          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--front\" style=\"--vt-marker-color:#000000;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n              </span>",
-          "className": "vt-direction-marker-wrapper",
-          "anchor": "center"
-        },
-        {
-          "id": "marker-m77flz-mi27ce0x",
-          "nodeId": "3",
-          "name": "3.jpg",
-          "tooltip": "3.jpg",
-          "position": {
-            "longitude": 3.440012247654343,
-            "latitude": -0.660785838597671
-          },
-          "longitude": 3.440012247654343,
-          "latitude": -0.660785838597671,
-          "linkOffset": {
-            "yaw": 1.7518211430161368,
-            "pitch": -0.25650712039775003,
-            "zoom": 20.97048999999932
-          },
-          "size": 100,
-          "color": "#000000",
-          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--front\" style=\"--vt-marker-color:#000000;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n              </span>",
-          "className": "vt-direction-marker-wrapper",
-          "anchor": "center"
-        },
-        {
-          "id": "marker-4eetyi-mi27dc70",
-          "nodeId": "7",
-          "name": "7.jpg",
-          "tooltip": "7.jpg",
-          "position": {
-            "longitude": 3.8289569333399887,
-            "latitude": -0.6034926477987712
-          },
-          "longitude": 3.8289569333399887,
-          "latitude": -0.6034926477987712,
-          "linkOffset": {
-            "yaw": 3.7067943229366467,
-            "pitch": -0.2170284719532285,
-            "zoom": 0
-          },
-          "size": 100,
-          "color": "#0a0a0a",
-          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--front_right\" style=\"--vt-marker-color:#0a0a0a;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"16.4 6.6 7.7 14.3 32.5 18.3 33.6 43.4 42.3 35.7 41.2 10.6 16.4 6.6\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"16.4 6.6 7.7 14.3 32.5 18.3 33.6 43.4 42.3 35.7 41.2 10.6 16.4 6.6\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"16.4 6.6 7.7 14.3 32.5 18.3 33.6 43.4 42.3 35.7 41.2 10.6 16.4 6.6\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"16.4 6.6 7.7 14.3 32.5 18.3 33.6 43.4 42.3 35.7 41.2 10.6 16.4 6.6\"/></svg>\n              </span>",
+          "color": "#ff8800",
+          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--front\" style=\"--vt-marker-color:#ff8800;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n              </span>",
           "className": "vt-direction-marker-wrapper",
           "anchor": "center"
         }
       ]
     },
     {
-      "id": "5",
-      "name": "5.jpg",
-      "panorama": "images/5.jpg",
+      "id": "20251115_145124_505",
+      "name": "20251115_145124_505.jpg",
+      "panorama": "images/20251115_145124_505.jpg",
       "links": [
         {
-          "id": "marker-v22w89-mi27bpa7",
-          "nodeId": "4",
-          "name": "4.jpg",
-          "tooltip": "4.jpg",
+          "id": "marker-lknm9i-mi28zkzw",
+          "nodeId": "20251115_145141_025",
+          "name": "20251115_145141_025.jpg",
+          "tooltip": "20251115_145141_025.jpg",
           "position": {
-            "longitude": 2.6381974358899116,
-            "latitude": -0.5311968743047948
+            "longitude": 3.2147618334290553,
+            "latitude": -0.5286133280326628
           },
-          "longitude": 2.6381974358899116,
-          "latitude": -0.5311968743047948,
+          "longitude": 3.2147618334290553,
+          "latitude": -0.5286133280326628,
           "linkOffset": {
-            "yaw": 3.467305229312374,
-            "pitch": -0.32063718748635406,
-            "zoom": 26.772774999987575
+            "yaw": 0.277311427591112,
+            "pitch": -0.21106307233419885,
+            "zoom": 0
           },
           "size": 100,
-          "color": "#f84f4f",
-          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--front\" style=\"--vt-marker-color:#f84f4f;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n              </span>",
+          "color": "#ff8800",
+          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--front\" style=\"--vt-marker-color:#ff8800;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n              </span>",
+          "className": "vt-direction-marker-wrapper",
+          "anchor": "center"
+        },
+        {
+          "id": "marker-j0r7zs-mi292jyt",
+          "nodeId": "20251115_145128_821",
+          "name": "20251115_145128_821.jpg",
+          "tooltip": "20251115_145128_821.jpg",
+          "position": {
+            "longitude": 6.270172707116889,
+            "latitude": -0.3695541425958937
+          },
+          "longitude": 6.270172707116889,
+          "latitude": -0.3695541425958937,
+          "linkOffset": {
+            "yaw": 1.177915105619065,
+            "pitch": -0.2191808828085855,
+            "zoom": 0
+          },
+          "size": 100,
+          "color": "#ffbb00",
+          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--front\" style=\"--vt-marker-color:#ffbb00;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n              </span>",
           "className": "vt-direction-marker-wrapper",
           "anchor": "center"
         }
       ]
     },
     {
-      "id": "6",
-      "name": "6.jpg",
-      "panorama": "images/6.jpg",
+      "id": "20251115_145141_025",
+      "name": "20251115_145141_025.jpg",
+      "panorama": "images/20251115_145141_025.jpg",
       "links": [
         {
-          "id": "marker-8qg4h5-mi27e4t3",
-          "nodeId": "4",
-          "name": "4.jpg",
-          "tooltip": "4.jpg",
+          "id": "marker-cywd4v-mi290awc",
+          "nodeId": "20251115_145136_971",
+          "name": "20251115_145136_971.jpg",
+          "tooltip": "20251115_145136_971.jpg",
           "position": {
-            "longitude": 2.849859292419646,
-            "latitude": -0.6202245511211619
+            "longitude": 0.6093716215576821,
+            "latitude": -0.3307998835761119
           },
-          "longitude": 2.849859292419646,
-          "latitude": -0.6202245511211619,
+          "longitude": 0.6093716215576821,
+          "latitude": -0.3307998835761119,
           "linkOffset": {
-            "yaw": 3.521378711249144,
-            "pitch": -0.2963000823153159,
-            "zoom": 7.75
+            "yaw": 0.27086169219902123,
+            "pitch": -0.3047897039515406,
+            "zoom": 0
           },
-          "size": 150,
-          "color": "#00ffcc",
-          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--front\" style=\"--vt-marker-color:#00ffcc;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n              </span>",
+          "size": 100,
+          "color": "#ffae00",
+          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--front\" style=\"--vt-marker-color:#ffae00;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n              </span>",
+          "className": "vt-direction-marker-wrapper",
+          "anchor": "center"
+        },
+        {
+          "id": "marker-1a27en-mi291xo3",
+          "nodeId": "20251115_145124_505",
+          "name": "20251115_145124_505.jpg",
+          "tooltip": "20251115_145124_505.jpg",
+          "position": {
+            "longitude": 3.4739530615803633,
+            "latitude": -0.3582867150011737
+          },
+          "longitude": 3.4739530615803633,
+          "latitude": -0.3582867150011737,
+          "linkOffset": {
+            "yaw": 0.009166654518436297,
+            "pitch": -0.298329534933913,
+            "zoom": 0
+          },
+          "size": 100,
+          "color": "#ffae00",
+          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--front\" style=\"--vt-marker-color:#ffae00;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n              </span>",
           "className": "vt-direction-marker-wrapper",
           "anchor": "center"
         }
       ]
     },
     {
-      "id": "7",
-      "name": "7.jpg",
-      "panorama": "images/7.jpg",
+      "id": "20251115_145136_971",
+      "name": "20251115_145136_971.jpg",
+      "panorama": "images/20251115_145136_971.jpg",
       "links": [
         {
-          "id": "marker-aiv2l2-mi27ey6y",
-          "nodeId": "8",
-          "name": "8.jpg",
-          "tooltip": "8.jpg",
+          "id": "marker-f4xil5-mi2916ne",
+          "nodeId": "20251115_145141_025",
+          "name": "20251115_145141_025.jpg",
+          "tooltip": "20251115_145141_025.jpg",
           "position": {
-            "longitude": 5.06063582074919,
-            "latitude": -0.1885117453417431
+            "longitude": 2.933996667661124,
+            "latitude": -0.5102915807958013
           },
-          "longitude": 5.06063582074919,
-          "latitude": -0.1885117453417431,
+          "longitude": 2.933996667661124,
+          "latitude": -0.5102915807958013,
           "linkOffset": {
-            "yaw": 3.719797405803893,
-            "pitch": -0.6036655944859577,
+            "yaw": 3.5626251021232376,
+            "pitch": -0.27397610351073753,
             "zoom": 0
           },
           "size": 100,
-          "color": "#000000",
-          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--front\" style=\"--vt-marker-color:#000000;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n              </span>",
-          "className": "vt-direction-marker-wrapper",
-          "anchor": "center"
-        },
-        {
-          "id": "marker-vu13th-mi27flbt",
-          "nodeId": "9",
-          "name": "9.jpg",
-          "tooltip": "9.jpg",
-          "position": {
-            "longitude": 3.7339034415848866,
-            "latitude": -0.34100149252293455
-          },
-          "longitude": 3.7339034415848866,
-          "latitude": -0.34100149252293455,
-          "linkOffset": {
-            "yaw": 1.8576615408790034,
-            "pitch": -0.2063880777308773,
-            "zoom": 50
-          },
-          "size": 100,
-          "color": "#000000",
-          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--right\" style=\"--vt-marker-color:#000000;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"22.8 4.8 10.7 4.8 27.2 25 10.7 45.2 22.8 45.2 39.3 25 22.8 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"22.8 4.8 10.7 4.8 27.2 25 10.7 45.2 22.8 45.2 39.3 25 22.8 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"22.8 4.8 10.7 4.8 27.2 25 10.7 45.2 22.8 45.2 39.3 25 22.8 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"22.8 4.8 10.7 4.8 27.2 25 10.7 45.2 22.8 45.2 39.3 25 22.8 4.8\"/></svg>\n              </span>",
-          "className": "vt-direction-marker-wrapper",
-          "anchor": "center"
-        },
-        {
-          "id": "marker-e1yytu-mi27gbpd",
-          "nodeId": "4",
-          "name": "4.jpg",
-          "tooltip": "4.jpg",
-          "position": {
-            "longitude": 0.5993472979141043,
-            "latitude": -0.09322493274448407
-          },
-          "longitude": 0.5993472979141043,
-          "latitude": -0.09322493274448407,
-          "linkOffset": {
-            "yaw": 0.17656040934355016,
-            "pitch": -0.3364945672924122,
-            "zoom": 0
-          },
-          "size": 100,
-          "color": "#000000",
-          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--front\" style=\"--vt-marker-color:#000000;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n              </span>",
-          "className": "vt-direction-marker-wrapper",
-          "anchor": "center"
-        }
-      ]
-    },
-    {
-      "id": "8",
-      "name": "8.jpg",
-      "panorama": "images/8.jpg",
-      "links": [
-        {
-          "id": "marker-pli4y0-mi27s2kz",
-          "nodeId": "4",
-          "name": "4.jpg",
-          "tooltip": "4.jpg",
-          "position": {
-            "longitude": 0.5832706074114842,
-            "latitude": -0.011324884070583296
-          },
-          "longitude": 0.5832706074114842,
-          "latitude": -0.011324884070583296,
-          "linkOffset": {
-            "yaw": 0.21541638118325293,
-            "pitch": 0,
-            "zoom": 0
-          },
-          "size": 100,
-          "color": "#000000",
-          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--left\" style=\"--vt-marker-color:#000000;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"27.2 4.8 39.3 4.8 22.8 25 39.3 45.2 27.2 45.2 10.7 25 27.2 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"27.2 4.8 39.3 4.8 22.8 25 39.3 45.2 27.2 45.2 10.7 25 27.2 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"27.2 4.8 39.3 4.8 22.8 25 39.3 45.2 27.2 45.2 10.7 25 27.2 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"27.2 4.8 39.3 4.8 22.8 25 39.3 45.2 27.2 45.2 10.7 25 27.2 4.8\"/></svg>\n              </span>",
-          "className": "vt-direction-marker-wrapper",
-          "anchor": "center"
-        },
-        {
-          "id": "marker-cu901z-mi27so3i",
-          "nodeId": "9",
-          "name": "9.jpg",
-          "tooltip": "9.jpg",
-          "position": {
-            "longitude": 0.9589462245557845,
-            "latitude": -0.019743369928168608
-          },
-          "longitude": 0.9589462245557845,
-          "latitude": -0.019743369928168608,
-          "linkOffset": {
-            "yaw": 0.5822747795198241,
-            "pitch": -0.08929591521831481,
-            "zoom": 0
-          },
-          "size": 100,
-          "color": "#000000",
-          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--right\" style=\"--vt-marker-color:#000000;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"22.8 4.8 10.7 4.8 27.2 25 10.7 45.2 22.8 45.2 39.3 25 22.8 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"22.8 4.8 10.7 4.8 27.2 25 10.7 45.2 22.8 45.2 39.3 25 22.8 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"22.8 4.8 10.7 4.8 27.2 25 10.7 45.2 22.8 45.2 39.3 25 22.8 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"22.8 4.8 10.7 4.8 27.2 25 10.7 45.2 22.8 45.2 39.3 25 22.8 4.8\"/></svg>\n              </span>",
-          "className": "vt-direction-marker-wrapper",
-          "anchor": "center"
-        }
-      ]
-    },
-    {
-      "id": "9",
-      "name": "9.jpg",
-      "panorama": "images/9.jpg",
-      "links": [
-        {
-          "id": "marker-uupusq-mi27qk67",
-          "nodeId": "4",
-          "name": "4.jpg",
-          "tooltip": "4.jpg",
-          "position": {
-            "longitude": 3.179263190446174,
-            "latitude": -0.053889741680955616
-          },
-          "longitude": 3.179263190446174,
-          "latitude": -0.053889741680955616,
-          "linkOffset": {
-            "yaw": 0.3783269646668028,
-            "pitch": -0.22824434074351352,
-            "zoom": 25.609645000126097
-          },
-          "size": 100,
-          "color": "#000000",
-          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--front\" style=\"--vt-marker-color:#000000;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n              </span>",
-          "className": "vt-direction-marker-wrapper",
-          "anchor": "center"
-        },
-        {
-          "id": "marker-0o66ji-mi27ra4v",
-          "nodeId": "8",
-          "name": "8.jpg",
-          "tooltip": "8.jpg",
-          "position": {
-            "longitude": 2.8293487061315457,
-            "latitude": -0.19138177516447352
-          },
-          "longitude": 2.8293487061315457,
-          "latitude": -0.19138177516447352,
-          "linkOffset": {
-            "yaw": 4.1512012647307435,
-            "pitch": -0.2800644613665302,
-            "zoom": 0
-          },
-          "size": 100,
-          "color": "#000000",
-          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--left\" style=\"--vt-marker-color:#000000;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"27.2 4.8 39.3 4.8 22.8 25 39.3 45.2 27.2 45.2 10.7 25 27.2 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"27.2 4.8 39.3 4.8 22.8 25 39.3 45.2 27.2 45.2 10.7 25 27.2 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"27.2 4.8 39.3 4.8 22.8 25 39.3 45.2 27.2 45.2 10.7 25 27.2 4.8\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"27.2 4.8 39.3 4.8 22.8 25 39.3 45.2 27.2 45.2 10.7 25 27.2 4.8\"/></svg>\n              </span>",
+          "color": "#ffbb00",
+          "html": "\n              <span class=\"vt-direction-marker vt-direction-marker--front\" style=\"--vt-marker-color:#ffbb00;\">\n                <svg class=\"arrow-layer arrow-layer-1\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-2\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-3\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n                <svg class=\"arrow-layer arrow-layer-4\" viewBox=\"0 0 50 50\" aria-hidden=\"true\" focusable=\"false\" style=\"fill: currentColor;\"><polygon points=\"45.2 27.2 45.2 39.3 25 22.8 4.8 39.3 4.8 27.2 25 10.7 45.2 27.2\"/></svg>\n              </span>",
           "className": "vt-direction-marker-wrapper",
           "anchor": "center"
         }
@@ -1076,6 +1058,10 @@
     import { MarkersPlugin } from '@photo-sphere-viewer/markers-plugin';
     import { VirtualTourPlugin } from '@photo-sphere-viewer/virtual-tour-plugin';
     import { AutorotatePlugin } from '@photo-sphere-viewer/autorotate-plugin';
+    import { GyroscopePlugin } from '@photo-sphere-viewer/gyroscope-plugin';
+    import { StereoPlugin } from '@photo-sphere-viewer/stereo-plugin';
+    import { SettingsPlugin } from '@photo-sphere-viewer/settings-plugin';
+    import { ResolutionPlugin } from '@photo-sphere-viewer/resolution-plugin';
 
     // ⬇️ TRANSITION CONFIGURATION - ALL TIMING VALUES IN ONE PLACE
     // Change these values to adjust all transition speeds throughout the application
@@ -1188,11 +1174,23 @@
         'zoom',
         'move',
         'autorotate',
+        'gyroscope',  // PSV's built-in gyroscope button (mobile)
+        'stereo',     // PSV's built-in stereo/VR button (mobile)
+        // 'settings',   // PSV's settings button (only needed if using ResolutionPlugin)
         'download',
         // 'gallery',
         'fullscreen'
       ],
-      touchmoveTwoFingers: true,
+      touchmoveTwoFingers: false,
+      // Mobile-friendly settings
+      mousemove: true,
+      mousewheel: true,
+      // Enable gyroscope on mobile devices (PSV will handle if supported)
+      // Note: We also implement manual gyroscope toggle below
+      // Better touch handling
+      touchmoveDelay: 0,
+      // Prevent default touch behaviors that interfere
+      captureCursor: true,
       // ⬇️ TRANSITION CONFIGURATION - Uses centralized TRANSITION_CONFIG variables
       defaultTransition: {
         speed: TRANSITION_CONFIG.fadeSpeed,      // Uses centralized fade speed
@@ -1215,9 +1213,78 @@
             showLoader: false  // Hide loader during transition for cleaner look
           }
         }],
-        [AutorotatePlugin, { autostartOnIdle: false, autostartDelay: null }]
+        [AutorotatePlugin, { autostartOnIdle: false, autostartDelay: null }],
+        // SettingsPlugin removed - was only needed for ResolutionPlugin
+        // ResolutionPlugin requires multiple pre-rendered panorama versions,
+        // which we don't have with dynamic loading
+        // [SettingsPlugin, {}],
+        [GyroscopePlugin, {
+          // Gyroscope plugin options
+          // The plugin will automatically request permissions on iOS 13+
+          // and show a button in the navbar
+          
+          // Optional configuration:
+          // touchmove: true,        // Allow touch panning while gyro is active (default: false)
+          // cameraRoll: false,      // Apply device roll to camera (default: false)
+          // moveMode: 'smooth',     // Movement mode: 'smooth' or 'fast' (default: 'smooth')
+        }],
+        [StereoPlugin, {
+          // Stereo/VR plugin for mobile devices
+          // Provides stereoscopic view for VR headsets (Google Cardboard, etc.)
+          // Requires GyroscopePlugin to function
+          // Uses WakeLock API to prevent screen dimming during VR mode
+        }],
+        // ResolutionPlugin removed - requires multiple pre-rendered panorama versions
+        // For dynamic panorama loading, PSV handles quality optimization automatically
+        // If you have multiple resolution versions of panoramas, you can add it back like this:
+        // [ResolutionPlugin, {
+        //   defaultResolution: 'high',
+        //   resolutions: [
+        //     { id: 'low', label: 'Low (1K)', panorama: 'path/to/low-res.jpg' },
+        //     { id: 'medium', label: 'Medium (2K)', panorama: 'path/to/medium-res.jpg' },
+        //     { id: 'high', label: 'High (4K)', panorama: 'path/to/high-res.jpg' },
+        //     { id: 'ultra', label: 'Ultra (8K)', panorama: 'path/to/ultra-res.jpg' }
+        //   ]
+        // }]
       ]
     });
+
+    // Mobile Device Plugins Summary:
+    // =============================
+    // 1. GyroscopePlugin - Enables device orientation control
+    //    - Shows button in navbar when gyroscope API is available
+    //    - Automatically requests permissions on iOS 13+
+    //    - Allows users to navigate by moving their device
+    //    - Works on HTTPS (required for device orientation API)
+    //
+    // 2. StereoPlugin - VR/Stereoscopic view for mobile
+    //    - Provides stereoscopic view for VR headsets (Google Cardboard, etc.)
+    //    - Requires GyroscopePlugin to function
+    //    - Uses WakeLock API to prevent screen dimming during VR mode
+    //    - Shows button in navbar when gyroscope is available
+    //
+    // 3. ResolutionPlugin - REMOVED
+    //    - Requires multiple pre-rendered panorama versions at different resolutions
+    //    - Not suitable for dynamic panorama loading from JSON/embedded data
+    //    - PSV automatically handles quality optimization for single panoramas
+    //
+    // 4. Built-in Mobile Features:
+    //    - Touch controls: swipe to pan, pinch to zoom
+    //    - Two-finger touch: disabled via touchmoveTwoFingers: false
+    //    - Responsive design: automatically adapts to screen size
+    //    - Fullscreen support: native fullscreen API
+    //
+    // Other Available Mobile Plugins (not currently enabled):
+    // - OverlaysPlugin: Add images/videos over panoramas
+    // - MapPlugin: Interactive map with hotspots
+    const gyroscope = viewer.getPlugin('gyroscope');
+    const stereo = viewer.getPlugin('stereo');
+    if (gyroscope) {
+      console.log('[PSV] GyroscopePlugin loaded successfully');
+    }
+    if (stereo) {
+      console.log('[PSV] StereoPlugin loaded successfully');
+    }
 
     const gallery = viewer.getPlugin('gallery');
     const markers = viewer.getPlugin('markers');
@@ -1351,6 +1418,10 @@
         return;
       }
       currentNodeId = nodeId;
+      
+      // Log panorama path for debugging
+      console.log(`[PSV] Loading node ${nodeId}, panorama path: "${node.panorama}"`);
+      
       // Proactively clear previous node markers to avoid leakage during scene change
       try { markers.setMarkers([]); } catch (_) { }
       try {
@@ -1430,6 +1501,7 @@
           }
         }
         // ⬇️ TRANSITION CONFIGURATION - Uses centralized TRANSITION_CONFIG variables
+        console.log(`[PSV] Attempting to load panorama: "${node.panorama}"`);
         await viewer.setPanorama(node.panorama, {
           showLoader: false,
           transition: {
@@ -1440,8 +1512,13 @@
                                // Rotation happens via viewer.animate() synchronized with fade
           }
         });
+        console.log(`[PSV] Panorama loaded successfully: "${node.panorama}"`);
       } catch (err) {
-        console.error('[PSV] setPanorama failed for node', nodeId, err);
+        console.error('[PSV] setPanorama failed for node', nodeId, 'panorama path:', node.panorama, 'error:', err);
+        // Try to provide more helpful error message
+        if (err && err.message) {
+          console.error('[PSV] Error details:', err.message);
+        }
         return;
       }
       const built = buildMarkersForNode(node);
